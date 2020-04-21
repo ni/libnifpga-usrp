@@ -164,23 +164,15 @@ void Session::reset() const
 // returns whether the bitfile had already been downloaded
 bool Session::download(bool force)
 {
-    auto personalityBlob = bitfile.takePersonalityBlob();
-    bool alreadyRunning  = false;
-
-    if (!personalityBlob)
-        personalityBlob = Bitfile(bitfile.getPath()).takePersonalityBlob();
-
-    assert(personalityBlob);
-
-    if (force)
-        personalityBlob->setForceDownload();
+    bool alreadyRunning = false;
 
     personalityFile.reset();
     setStoppedAllFifos();
 
     // actually do the download by writing the personality blob
     try {
-        boardFile.write(personalityBlob->getBlob(), personalityBlob->getSize());
+        // TODO auchter: boardFile.write(personalityBlob->getBlob(),
+        // personalityBlob->getSize());
     } catch (const FpgaAlreadyRunningException&) {
         alreadyRunning = true;
     }

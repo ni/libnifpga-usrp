@@ -15,7 +15,6 @@
 #pragma once
 
 #include "FifoInfo.h"
-#include "PersonalityBlob.h"
 #include "RegisterInfo.h"
 #include "Status.h"
 #include <memory> // std::unique_ptr
@@ -58,8 +57,6 @@ public:
 
     uint32_t getBitstreamVersion() const;
 
-    std::unique_ptr<PersonalityBlob> takePersonalityBlob();
-
 private:
     const std::string path;
     std::string signature;
@@ -75,7 +72,6 @@ private:
     RegisterInfoVector registers;
     FifoInfoVector fifos;
     uint32_t bitstreamVersion;
-    std::unique_ptr<PersonalityBlob> personalityBlob;
 
     Bitfile(const Bitfile&) = delete;
     Bitfile& operator=(const Bitfile&) = delete;

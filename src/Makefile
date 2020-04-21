@@ -49,7 +49,6 @@ NIFPGA_OBJECTS := \
 	FifoInfo.o \
 	FileLock.o \
 	NiFpga.o \
-	PersonalityBlob.o \
 	RegisterInfo.o \
 	ResourceInfo.o \
 	Session.o \
@@ -63,7 +62,7 @@ libNiFpga.so: $(NIFPGA_OBJECTS) .libNiFpga.so.symalias .libNiFpga.so.map
 	@echo '  LD    ' $@
 	@$(CXX) -Wl,-soname,$@ -Wl,-z,defs -Wl,@.libNiFpga.so.symalias -Wl,--version-script=.libNiFpga.so.map -shared -pthread $(LDFLAGS) $(NIFPGA_OBJECTS) -o $@
 
-lvbitx2dtso: lvbitx2dtso.o Bitfile.o PersonalityBlob.o Type.o RegisterInfo.o FifoInfo.o ResourceInfo.o libb64/cdecode.o dtgen.o
+lvbitx2dtso: lvbitx2dtso.o Bitfile.o Type.o RegisterInfo.o FifoInfo.o ResourceInfo.o libb64/cdecode.o dtgen.o
 	$(CXX) -o $@ $^
 
 dependency = $(dir $1)$(patsubst %.o,.%.d,$(notdir $1))

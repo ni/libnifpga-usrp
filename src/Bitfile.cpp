@@ -310,15 +310,6 @@ Bitfile::Bitfile(const std::string& path)
         }
         // find the bitstream
         auto& xmlBitstream = xmlBitfile / "Bitstream";
-        // create a personality blob out of the bitstream and necessary metadata
-        personalityBlob.reset(new PersonalityBlob(xmlBitstream.value(),
-            xmlBitstream.value_size(),
-            fifosSupportClear,
-            fifosSupportBridgeFlush,
-            resetAutoClears,
-            autoRunWhenDownloaded,
-            signature,
-            fifos));
     } catch (const std::runtime_error&) {
         // rapidxml::file will throw this if it fails to open the file
         NIRIO_THROW(BitfileReadErrorException());
@@ -396,11 +387,6 @@ const FifoInfoVector& Bitfile::getFifos() const
 uint32_t Bitfile::getBitstreamVersion() const
 {
     return bitstreamVersion;
-}
-
-std::unique_ptr<PersonalityBlob> Bitfile::takePersonalityBlob()
-{
-    return std::move(personalityBlob);
 }
 
 } // namespace nirio
