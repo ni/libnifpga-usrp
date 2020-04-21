@@ -43,19 +43,8 @@
    #define DEBUG_PRINT_STACK()
 #endif // DEBUG
 
-/// Tests whether this is GCC 4.6 or later with C++11 features turned on.
-#define NIRIO_HAS_GCC_4_6_CPP11_FEATURES \
-      (__GNUC__ >= 4 \
-       && __GNUC_MINOR__ >= 6 \
-       && (__cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)))
-
-#if NIRIO_HAS_GCC_4_6_CPP11_FEATURES
-   #define NIRIO_NOEXCEPT noexcept
-   #define NIRIO_NOEXCEPT_IF(trueOrFalse) noexcept((trueOrFalse))
-#else
-   #define NIRIO_NOEXCEPT
-   #define NIRIO_NOEXCEPT_IF(trueOrFalse)
-#endif
+#define NIRIO_NOEXCEPT noexcept
+#define NIRIO_NOEXCEPT_IF(trueOrFalse) noexcept((trueOrFalse))
 
 namespace nirio
 {
