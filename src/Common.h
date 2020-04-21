@@ -43,9 +43,6 @@
    #define DEBUG_PRINT_STACK()
 #endif // DEBUG
 
-#define NIRIO_NOEXCEPT noexcept
-#define NIRIO_NOEXCEPT_IF(trueOrFalse) noexcept((trueOrFalse))
-
 namespace nirio
 {
    static inline std::string normalizePath(const std::string& p)

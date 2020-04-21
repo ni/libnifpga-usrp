@@ -161,7 +161,7 @@ Fifo::Fifo(const FifoInfo&    fifo,
                                           errnoMap).readBool());
 }
 
-Fifo::~Fifo() NIRIO_NOEXCEPT_IF(true)
+Fifo::~Fifo() noexcept(true)
 {
 }
 

@@ -61,7 +61,7 @@ class Fifo : public FifoInfo
       Fifo(const FifoInfo&    fifo,
            const std::string& device);
 
-      virtual ~Fifo() NIRIO_NOEXCEPT_IF(true);
+      virtual ~Fifo() noexcept(true);
 
       void configure(size_t  requestedDepth,
                      size_t* actualDepth);
