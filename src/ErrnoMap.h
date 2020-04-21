@@ -15,62 +15,71 @@
 #pragma once
 
 #include "Common.h"
-#include "NiFpga.h"
 #include "Exception.h"
+#include "NiFpga.h"
 #include <cerrno>
 
-namespace nirio
-{
+namespace nirio {
 /**
  * Strategy class for mapping system error codes like those that come from errno
  * to NI-RIO exceptions
  */
 class ErrnoMap
 {
-   public:
-      // single instance that can safely passed in as the default parameter of
-      // reference type
-      static const ErrnoMap instance;
+public:
+    // single instance that can safely passed in as the default parameter of
+    // reference type
+    static const ErrnoMap instance;
 
-      virtual ~ErrnoMap() = default;
+    virtual ~ErrnoMap() = default;
 
-      /**
-       * Maps a system error code to an exception
-       *
-       * @param error incoming system error code
-       */
-      virtual void throwErrno(const int error) const
-      {
-         switch (error)
-         {
-            case 0:         return;
-            case EIO:       throw HardwareFaultException();
-            case ENOMEM:    throw MemoryFullException();
-                            // TODO: FpgaBusy to be more generic?
-            case EBUSY:     throw FpgaBusyFpgaInterfaceCApiException();
-            case E2BIG:     throw BadDepthException();
-            case EINVAL:    throw InvalidParameterException();
-            case EOPNOTSUPP:throw FeatureNotSupportedException();
-            case EMFILE:    throw OutOfHandlesException();
+    /**
+     * Maps a system error code to an exception
+     *
+     * @param error incoming system error code
+     */
+    virtual void throwErrno(const int error) const
+    {
+        switch (error) {
+            case 0:
+                return;
+            case EIO:
+                throw HardwareFaultException();
+            case ENOMEM:
+                throw MemoryFullException();
+                // TODO: FpgaBusy to be more generic?
+            case EBUSY:
+                throw FpgaBusyFpgaInterfaceCApiException();
+            case E2BIG:
+                throw BadDepthException();
+            case EINVAL:
+                throw InvalidParameterException();
+            case EOPNOTSUPP:
+                throw FeatureNotSupportedException();
+            case EMFILE:
+                throw OutOfHandlesException();
             case ENOENT:
-            case EACCES:    throw InvalidResourceNameException();
-            case ETIMEDOUT: throw CommunicationTimeoutException();
-            case ENOLCK:    throw ClockLostLockException();
+            case EACCES:
+                throw InvalidResourceNameException();
+            case ETIMEDOUT:
+                throw CommunicationTimeoutException();
+            case ENOLCK:
+                throw ClockLostLockException();
             case EPROTO: // TODO: throw ImplicitEnableRemovalException;
             default:
-               DEBUG_PRINT_ERRNO();
-               DEBUG_PRINT_STACK();
-               throw SoftwareFaultException();
-         }
-      }
+                DEBUG_PRINT_ERRNO();
+                DEBUG_PRINT_STACK();
+                throw SoftwareFaultException();
+        }
+    }
 
-   protected:
-      // public callers should use instance instead
-      ErrnoMap() = default;
+protected:
+    // public callers should use instance instead
+    ErrnoMap() = default;
 
-   private:
-      // prevents losing virtuality of map function by making copy
-      ErrnoMap(const ErrnoMap&) = delete;
+private:
+    // prevents losing virtuality of map function by making copy
+    ErrnoMap(const ErrnoMap&) = delete;
 };
 
-}
+} // namespace nirio

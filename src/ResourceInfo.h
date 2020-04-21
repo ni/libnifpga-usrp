@@ -17,46 +17,44 @@
 #include "Type.h"
 #include <string> // std::string
 
-namespace nirio
-{
+namespace nirio {
 
 /**
  * Description of a resource as parsed from a bitfile.
  */
 class ResourceInfo
 {
-   public:
-      ResourceInfo(const std::string& name, Type type);
+public:
+    ResourceInfo(const std::string& name, Type type);
 
-      virtual ~ResourceInfo() = default;
+    virtual ~ResourceInfo() = default;
 
-      /**
-       * Gets the name of this resource.
-       *
-       * @return name of this resource
-       */
-      const std::string& getName() const;
+    /**
+     * Gets the name of this resource.
+     *
+     * @return name of this resource
+     */
+    const std::string& getName() const;
 
-      /**
-       * Gets the type of this resource.
-       *
-       * @return type of this resource
-       */
-      const Type& getType() const;
+    /**
+     * Gets the type of this resource.
+     *
+     * @return type of this resource
+     */
+    const Type& getType() const;
 
-      /**
-       * Whether this resource matches a given resource type.
-       *
-       * @param type type to match
-       * @return whether this resource matches a given resource type
-       */
-      virtual bool matches(const std::string&    name,
-                           NiFpgaEx_ResourceType type) const = 0;
+    /**
+     * Whether this resource matches a given resource type.
+     *
+     * @param type type to match
+     * @return whether this resource matches a given resource type
+     */
+    virtual bool matches(const std::string& name, NiFpgaEx_ResourceType type) const = 0;
 
-   protected:
-      // NOTE: members can't be const or this can't be used in std::vector, etc.
-      std::string name; ///< Name of this resource.
-      Type        type; ///< Type of this resource.
+protected:
+    // NOTE: members can't be const or this can't be used in std::vector, etc.
+    std::string name; ///< Name of this resource.
+    Type type; ///< Type of this resource.
 };
 
 } // namespace nirio

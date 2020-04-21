@@ -15,76 +15,73 @@
 #include "FifoInfo.h"
 #include <cassert> // assert
 
-namespace nirio
-{
+namespace nirio {
 
-FifoInfo::FifoInfo(const std::string&     name,
-                   const Type             type,
-                   const NiFpgaEx_DmaFifo number,
-                   const uint32_t         controlSet,
-                   const bool             hostToTarget,
-                   const std::string&     baseAddressTag) :
-   ResourceInfo(name, type),
-   number(number),
-   controlSet(controlSet),
-   hostToTarget(hostToTarget),
-   baseAddressTag(baseAddressTag),
-   offset(0),
-   offsetIsSet(false)
+FifoInfo::FifoInfo(const std::string& name,
+    const Type type,
+    const NiFpgaEx_DmaFifo number,
+    const uint32_t controlSet,
+    const bool hostToTarget,
+    const std::string& baseAddressTag)
+    : ResourceInfo(name, type)
+    , number(number)
+    , controlSet(controlSet)
+    , hostToTarget(hostToTarget)
+    , baseAddressTag(baseAddressTag)
+    , offset(0)
+    , offsetIsSet(false)
 
 {
 }
 
 NiFpgaEx_DmaFifo FifoInfo::getNumber() const
 {
-   return number;
+    return number;
 }
 
 uint32_t FifoInfo::getControlSet() const
 {
-   return controlSet;
+    return controlSet;
 }
 
 bool FifoInfo::isTargetToHost() const
 {
-   return !hostToTarget;
+    return !hostToTarget;
 }
 
 bool FifoInfo::isHostToTarget() const
 {
-   return hostToTarget;
+    return hostToTarget;
 }
 
 const std::string& FifoInfo::getBaseAddressTag() const
 {
-   return baseAddressTag;
+    return baseAddressTag;
 }
 
 uint32_t FifoInfo::getOffset() const
 {
-   return offset;
+    return offset;
 }
 
 void FifoInfo::setOffset(const uint32_t offset)
 {
-   this->offset = offset;
-   offsetIsSet = true;
+    this->offset = offset;
+    offsetIsSet  = true;
 }
 
 bool FifoInfo::isOffsetSet() const
 {
-   return offsetIsSet;
+    return offsetIsSet;
 }
 
-bool FifoInfo::matches(const std::string&          name,
-                       const NiFpgaEx_ResourceType type) const
+bool FifoInfo::matches(const std::string& name, const NiFpgaEx_ResourceType type) const
 {
-   if (type == NiFpgaEx_ResourceType_Any)
-      return ResourceInfo::matches(name, type);
+    if (type == NiFpgaEx_ResourceType_Any)
+        return ResourceInfo::matches(name, type);
 
-   return ResourceInfo::matches(name, type)
-       && nirio::isDmaFifo(type)
-       && nirio::isTargetToHostFifo(type) == isTargetToHost();
+    return ResourceInfo::matches(name, type) && nirio::isDmaFifo(type)
+           && nirio::isTargetToHostFifo(type) == isTargetToHost();
 }
 
 } // namespace nirio

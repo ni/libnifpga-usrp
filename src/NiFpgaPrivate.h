@@ -20,9 +20,7 @@
 
 #pragma GCC visibility push(default)
 
-extern "C"
-NiFpga_Status NiFpgaPrivate_GetDeviceName(const NiFpga_Session session,
-                                          char* const          buffer,
-                                          const size_t         size);
+extern "C" NiFpga_Status NiFpgaPrivate_GetDeviceName(
+    const NiFpga_Session session, char* const buffer, const size_t size);
 
 #pragma GCC visibility pop

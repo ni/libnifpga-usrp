@@ -17,8 +17,7 @@
 #include "NiFpga.h"
 #include <chrono> // std::chrono::
 
-namespace nirio
-{
+namespace nirio {
 
 /**
  * Timer for measuring elapsed times and whether given timeouts have occurred.
@@ -27,56 +26,56 @@ namespace nirio
  */
 class Timer
 {
-   public:
-      explicit Timer(const uint32_t timeout = NiFpga_InfiniteTimeout) :
-         // start set below in reset()
-         timeout(timeout)
-      {
-         reset();
-      }
+public:
+    explicit Timer(const uint32_t timeout = NiFpga_InfiniteTimeout)
+        : // start set below in reset()
+        timeout(timeout)
+    {
+        reset();
+    }
 
-      void reset()
-      {
-         start = Clock::now();
-      }
+    void reset()
+    {
+        start = Clock::now();
+    }
 
-      uint32_t getElapsed() const
-      {
-         return static_cast<uint32_t>(
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-               Clock::now() - start).count());
-      }
+    uint32_t getElapsed() const
+    {
+        return static_cast<uint32_t>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start)
+                .count());
+    }
 
-      uint32_t getRemaining() const
-      {
-         // infinite timeout always has infinite remaining
-         if (isInfinite())
+    uint32_t getRemaining() const
+    {
+        // infinite timeout always has infinite remaining
+        if (isInfinite())
             return NiFpga_InfiniteTimeout;
-         // see how long it's been
-         const auto elapsed = getElapsed();
-         // if it's been long enough, nothing's remaining
-         if (elapsed >= timeout)
+        // see how long it's been
+        const auto elapsed = getElapsed();
+        // if it's been long enough, nothing's remaining
+        if (elapsed >= timeout)
             return 0;
-         // otherwise, calculate what's left
-         else
+        // otherwise, calculate what's left
+        else
             return timeout - elapsed;
-      }
+    }
 
-      bool isTimedOut() const
-      {
-         return getRemaining() == 0;
-      }
+    bool isTimedOut() const
+    {
+        return getRemaining() == 0;
+    }
 
-      bool isInfinite() const
-      {
-         return timeout == NiFpga_InfiniteTimeout;
-      }
+    bool isInfinite() const
+    {
+        return timeout == NiFpga_InfiniteTimeout;
+    }
 
-   private:
-      typedef std::chrono::high_resolution_clock Clock;
+private:
+    typedef std::chrono::high_resolution_clock Clock;
 
-      Clock::time_point start;
-      const uint32_t    timeout;
+    Clock::time_point start;
+    const uint32_t timeout;
 };
 
 } // namespace nirio

@@ -17,8 +17,7 @@
 #include "Status.h"
 #include <string> // std::string
 
-namespace nirio
-{
+namespace nirio {
 
 /**
  * A cross-process, multiple-readers/single-writer shared mutex backed by a file
@@ -36,28 +35,28 @@ namespace nirio
  */
 class FileLock
 {
-   public:
-      explicit FileLock(const std::string& path);
+public:
+    explicit FileLock(const std::string& path);
 
-      ~FileLock();
+    ~FileLock();
 
-      void lockReader();
+    void lockReader();
 
-      void lockWriter();
+    void lockWriter();
 
-      bool tryLockReader();
+    bool tryLockReader();
 
-      bool tryLockWriter();
+    bool tryLockWriter();
 
-      void unlock();
+    void unlock();
 
-   private:
-      bool flock(int operation);
+private:
+    bool flock(int operation);
 
-      int descriptor;
+    int descriptor;
 
-      FileLock(const FileLock&) = delete;
-      FileLock& operator =(const FileLock&) = delete;
+    FileLock(const FileLock&) = delete;
+    FileLock& operator=(const FileLock&) = delete;
 };
 
 } // namespace nirio

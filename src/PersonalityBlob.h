@@ -14,13 +14,12 @@
 
 #pragma once
 
-#include "Status.h"
 #include "FifoInfo.h"
+#include "Status.h"
 #include <string> // std::string
 #include <vector> // std::vector
 
-namespace nirio
-{
+namespace nirio {
 
 /**
  * A binary "blob" containing all information required to describe an FPGA
@@ -28,30 +27,30 @@ namespace nirio
  */
 class PersonalityBlob
 {
-   public:
-      PersonalityBlob(const char*           base64Bitstream,
-                      size_t                base64BitstreamSize,
-                      bool                  fifosSupportClear,
-                      bool                  fifosSupportBridgeFlush,
-                      bool                  resetAutoClears,
-                      bool                  autoRunWhenDownloaded,
-                      const std::string&    signature,
-                      const FifoInfoVector& fifos);
+public:
+    PersonalityBlob(const char* base64Bitstream,
+        size_t base64BitstreamSize,
+        bool fifosSupportClear,
+        bool fifosSupportBridgeFlush,
+        bool resetAutoClears,
+        bool autoRunWhenDownloaded,
+        const std::string& signature,
+        const FifoInfoVector& fifos);
 
-      ~PersonalityBlob();
+    ~PersonalityBlob();
 
-      const uint8_t* getBlob() const;
+    const uint8_t* getBlob() const;
 
-      size_t getSize() const;
+    size_t getSize() const;
 
-      // Modify the blob to enable force download
-      void setForceDownload();
+    // Modify the blob to enable force download
+    void setForceDownload();
 
-   private:
-      std::vector<uint8_t> blob;
+private:
+    std::vector<uint8_t> blob;
 
-      PersonalityBlob(const PersonalityBlob&) = delete;
-      PersonalityBlob& operator =(const PersonalityBlob&) = delete;
+    PersonalityBlob(const PersonalityBlob&) = delete;
+    PersonalityBlob& operator=(const PersonalityBlob&) = delete;
 };
 
 } // namespace nirio

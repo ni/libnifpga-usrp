@@ -19,9 +19,21 @@
 #include "Common.h"
 
 #ifdef ENABLE_VALGRIND
-#include <valgrind/memcheck.h>
+#    include <valgrind/memcheck.h>
 #else
-#define VALGRIND_MAKE_MEM_NOACCESS(_qzz_addr,_qzz_len) do { UNUSED(_qzz_addr); UNUSED(_qzz_len); } while (0)
-#define VALGRIND_MAKE_MEM_DEFINED(_qzz_addr,_qzz_len) do { UNUSED(_qzz_addr); UNUSED(_qzz_len); } while (0)
-#define VALGRIND_MAKE_MEM_UNDEFINED(_qzz_addr,_qzz_len) do { UNUSED(_qzz_addr); UNUSED(_qzz_len); } while (0)
+#    define VALGRIND_MAKE_MEM_NOACCESS(_qzz_addr, _qzz_len) \
+        do {                                                \
+            UNUSED(_qzz_addr);                              \
+            UNUSED(_qzz_len);                               \
+        } while (0)
+#    define VALGRIND_MAKE_MEM_DEFINED(_qzz_addr, _qzz_len) \
+        do {                                               \
+            UNUSED(_qzz_addr);                             \
+            UNUSED(_qzz_len);                              \
+        } while (0)
+#    define VALGRIND_MAKE_MEM_UNDEFINED(_qzz_addr, _qzz_len) \
+        do {                                                 \
+            UNUSED(_qzz_addr);                               \
+            UNUSED(_qzz_len);                                \
+        } while (0)
 #endif

@@ -14,8 +14,7 @@
 
 #include "ErrnoMap.h"
 
-namespace nirio
-{
+namespace nirio {
 
 // this file is a lot of pomp and circumstance for instantiating one object with
 // nothing but a vtable!

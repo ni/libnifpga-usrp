@@ -15,35 +15,31 @@
 #include "FifoInfo.h"
 #include <cassert> // assert
 
-namespace nirio
-{
+namespace nirio {
 
-ResourceInfo::ResourceInfo(const std::string& name,
-                           const Type         type) :
-   name(name),
-   type(type)
+ResourceInfo::ResourceInfo(const std::string& name, const Type type)
+    : name(name), type(type)
 {
 }
 
 const std::string& ResourceInfo::getName() const
 {
-   return name;
+    return name;
 }
 
 const Type& ResourceInfo::getType() const
 {
-   return type;
+    return type;
 }
 
-bool ResourceInfo::matches(const std::string&          name,
-                           const NiFpgaEx_ResourceType type) const
+bool ResourceInfo::matches(
+    const std::string& name, const NiFpgaEx_ResourceType type) const
 {
-   if (type == NiFpgaEx_ResourceType_Any)
-      return this->name == name;
+    if (type == NiFpgaEx_ResourceType_Any)
+        return this->name == name;
 
-   // only matches name and type, so derived class much match the rest
-   return this->name == name
-       && this->type == nirio::getType(type);
+    // only matches name and type, so derived class much match the rest
+    return this->name == name && this->type == nirio::getType(type);
 }
 
 } // namespace nirio

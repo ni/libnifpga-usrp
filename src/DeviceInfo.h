@@ -16,11 +16,10 @@
 
 #include <string>
 
-namespace nirio
-{
+namespace nirio {
 
 std::string getModelName(const std::string& resource);
 
 std::string getSerialNumber(const std::string& resource);
 
-}
+} // namespace nirio

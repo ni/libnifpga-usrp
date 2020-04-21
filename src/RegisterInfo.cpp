@@ -15,58 +15,56 @@
 #include "RegisterInfo.h"
 #include <cassert> // assert
 
-namespace nirio
-{
+namespace nirio {
 
-RegisterInfo::RegisterInfo(const std::string&      name,
-                           const Type              type,
-                           const NiFpgaEx_Register offset,
-                           const bool              indicator,
-                           const bool              array,
-                           const bool              accessMayTimeout) :
-   ResourceInfo(name, type),
-   offset(offset),
-   indicator(indicator),
-   array(array),
-   accessMayTimeout(accessMayTimeout)
+RegisterInfo::RegisterInfo(const std::string& name,
+    const Type type,
+    const NiFpgaEx_Register offset,
+    const bool indicator,
+    const bool array,
+    const bool accessMayTimeout)
+    : ResourceInfo(name, type)
+    , offset(offset)
+    , indicator(indicator)
+    , array(array)
+    , accessMayTimeout(accessMayTimeout)
 {
 }
 
 NiFpgaEx_Register RegisterInfo::getOffset() const
 {
-   return offset;
+    return offset;
 }
 
 bool RegisterInfo::isIndicator() const
 {
-   return indicator;
+    return indicator;
 }
 
 bool RegisterInfo::isControl() const
 {
-   return !indicator;
+    return !indicator;
 }
 
 bool RegisterInfo::isArray() const
 {
-   return array;
+    return array;
 }
 
 bool RegisterInfo::isAccessMayTimeout() const
 {
-   return accessMayTimeout;
+    return accessMayTimeout;
 }
 
-bool RegisterInfo::matches(const std::string&          name,
-                           const NiFpgaEx_ResourceType type) const
+bool RegisterInfo::matches(
+    const std::string& name, const NiFpgaEx_ResourceType type) const
 {
-   if (type == NiFpgaEx_ResourceType_Any)
-      return ResourceInfo::matches(name, type);
+    if (type == NiFpgaEx_ResourceType_Any)
+        return ResourceInfo::matches(name, type);
 
-   return ResourceInfo::matches(name, type)
-       && nirio::isRegister(type)
-       && nirio::isIndicator(type) == isIndicator()
-       && nirio::isArray(type)     == isArray();
+    return ResourceInfo::matches(name, type) && nirio::isRegister(type)
+           && nirio::isIndicator(type) == isIndicator()
+           && nirio::isArray(type) == isArray();
 }
 
 } // namespace nirio

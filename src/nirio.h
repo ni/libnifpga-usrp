@@ -9,7 +9,7 @@
 
 #include <linux/types.h> /* __u32 */
 #ifndef __KERNEL__
-#include <sys/ioctl.h> /* _IOWR, _IOW */
+#    include <sys/ioctl.h> /* _IOWR, _IOW */
 #endif
 
 /**
@@ -27,15 +27,16 @@
  *	lvbitx offset 160, write this data:
  *	[u32 160] [u32 8] [u32 3] [u8 1] [u8 2] [u8 3]
  */
-struct nirio_array {
-	__u32 offset;
-	__u32 bits_per_elem;
-	__u32 num_elem;
-/*
- * NOTE: We use the __may_alias__ attribute so we can cast an ioctl buffer to
- *       an nirio_array struct without getting the following warning:
- *       "dereferencing type-punned pointer will break strict-aliasing rules"
- */
+struct nirio_array
+{
+    __u32 offset;
+    __u32 bits_per_elem;
+    __u32 num_elem;
+    /*
+     * NOTE: We use the __may_alias__ attribute so we can cast an ioctl buffer to
+     *       an nirio_array struct without getting the following warning:
+     *       "dereferencing type-punned pointer will break strict-aliasing rules"
+     */
 } __attribute__((__may_alias__));
 
 /* Use these for FIFO direction when writing personality blob */
@@ -53,20 +54,21 @@ struct nirio_array {
  * @bits_per_elem: data type bits per element, from lvbitx. Bools would be a 1.
  *	The FPGA driver sets this before fifo_init, for board drivers to read.
  */
-struct nirio_fifo_info {
-	__u32 channel;
-	__u32 control_set;
-	__u32 offset;
-	__u32 direction;
-	__u32 bits_per_elem;
+struct nirio_fifo_info
+{
+    __u32 channel;
+    __u32 control_set;
+    __u32 offset;
+    __u32 direction;
+    __u32 bits_per_elem;
 };
 
-#define NIRIO_PERSONALITY_FIFOS_SUPPORT_CLEAR		(1u << 0)
-#define NIRIO_PERSONALITY_FIFOS_SUPPORT_BRIDGE_FLUSH	(1u << 1)
-#define NIRIO_PERSONALITY_RESET_AUTO_CLEARS		(1u << 2)
-#define NIRIO_PERSONALITY_RUN_WHEN_LOADED		(1u << 3)
+#define NIRIO_PERSONALITY_FIFOS_SUPPORT_CLEAR (1u << 0)
+#define NIRIO_PERSONALITY_FIFOS_SUPPORT_BRIDGE_FLUSH (1u << 1)
+#define NIRIO_PERSONALITY_RESET_AUTO_CLEARS (1u << 2)
+#define NIRIO_PERSONALITY_RUN_WHEN_LOADED (1u << 3)
 
-#define NIRIO_DOWNLOAD_FORCE				(1u << 0)
+#define NIRIO_DOWNLOAD_FORCE (1u << 0)
 /*
  * struct nirio_personality_info: personality info from lvbitx
  * NOTE: This defines the binary format of the personality blob; do not change
@@ -75,21 +77,22 @@ struct nirio_fifo_info {
  * @num_fifos: number of FIFOs in this personality
  * @fifo: metadata for each FIFO in the personality
  */
-struct nirio_personality_info {
-	__u32 download_flags;
-	__u32 personality_flags;
-	__u8 signature[32];
-	__u32 num_fifos;
-	struct nirio_fifo_info fifo[];
+struct nirio_personality_info
+{
+    __u32 download_flags;
+    __u32 personality_flags;
+    __u8 signature[32];
+    __u32 num_fifos;
+    struct nirio_fifo_info fifo[];
 };
 
 /**
  * The type of DMA buffer memory passed when setting a FIFO buffer
  */
 enum memory_type {
-	MEMORY_TYPE_USER = 0, /* normal user-allocated buffer */
-	MEMORY_TYPE_NVIDIA = 1, /* GPU memory allocated from NVIDIA API */
-	MEMORY_TYPE_MAX
+    MEMORY_TYPE_USER   = 0, /* normal user-allocated buffer */
+    MEMORY_TYPE_NVIDIA = 1, /* GPU memory allocated from NVIDIA API */
+    MEMORY_TYPE_MAX
 };
 
 /**
@@ -100,10 +103,11 @@ enum memory_type {
  *
  * Both values should be page-rounded.
  */
-struct nirio_fifo_set_buffer_info {
-	__aligned_u64 bytes;
-	__aligned_u64 buff_ptr;
-	__u32 memory_type;
+struct nirio_fifo_set_buffer_info
+{
+    __aligned_u64 bytes;
+    __aligned_u64 buff_ptr;
+    __u32 memory_type;
 };
 
 #define NIRIO_INFINITE_TIMEOUT (0xffffffff)
@@ -116,20 +120,21 @@ struct nirio_fifo_set_buffer_info {
  *		or NIRIO_INFINITE_TIMEOUT
  * @timed_out: output (from kernel), if timed out
  */
-struct nirio_fifo_wait {
-	__aligned_u64 wait_num_elem;
-	__aligned_u64 num_elem_avail;
-	__u32 timeout_ms;
-	__u32 timed_out;
+struct nirio_fifo_wait
+{
+    __aligned_u64 wait_num_elem;
+    __aligned_u64 num_elem_avail;
+    __u32 timeout_ms;
+    __u32 timed_out;
 };
 
-#define NIRIO_IOC_MAGIC		(93) /* need a random 8-bit number */
+#define NIRIO_IOC_MAGIC (93) /* need a random 8-bit number */
 
-#define NIRIO_IOC_ARRAY_READ	_IOWR(NIRIO_IOC_MAGIC, 0, struct nirio_array)
-#define NIRIO_IOC_ARRAY_WRITE	_IOW(NIRIO_IOC_MAGIC, 1, struct nirio_array)
+#define NIRIO_IOC_ARRAY_READ _IOWR(NIRIO_IOC_MAGIC, 0, struct nirio_array)
+#define NIRIO_IOC_ARRAY_WRITE _IOW(NIRIO_IOC_MAGIC, 1, struct nirio_array)
 
-#define NIRIO_IOC_FIFO_SET_BUFFER _IOW(NIRIO_IOC_MAGIC, 2, \
-					struct nirio_fifo_set_buffer_info)
+#define NIRIO_IOC_FIFO_SET_BUFFER \
+    _IOW(NIRIO_IOC_MAGIC, 2, struct nirio_fifo_set_buffer_info)
 
 /**
  * On success, num_elem_avail will be the number of elements
@@ -138,7 +143,6 @@ struct nirio_fifo_wait {
  * and no elements will have been acquired at all. num_elem_avail will still
  * be the number of elements available (which must be less than wait_num_elem).
  */
-#define NIRIO_IOC_FIFO_ACQUIRE_WAIT _IOWR(NIRIO_IOC_MAGIC, 3, \
-						struct nirio_fifo_wait)
+#define NIRIO_IOC_FIFO_ACQUIRE_WAIT _IOWR(NIRIO_IOC_MAGIC, 3, struct nirio_fifo_wait)
 
 #endif /* INCLUDE_NIRIO_H */

@@ -17,66 +17,64 @@
 #include "ResourceInfo.h"
 #include <vector> // std::vector
 
-namespace nirio
-{
+namespace nirio {
 
 /**
  * Description of a control or indicator as parsed from a bitfile.
  */
 class RegisterInfo : public ResourceInfo
 {
-   public:
-      RegisterInfo(const std::string& name,
-                   Type               type,
-                   NiFpgaEx_Register  offset,
-                   bool               control,
-                   bool               array,
-                   bool               accessMayTimeout);
+public:
+    RegisterInfo(const std::string& name,
+        Type type,
+        NiFpgaEx_Register offset,
+        bool control,
+        bool array,
+        bool accessMayTimeout);
 
-      /**
-       * Gets the offset of this register.
-       *
-       * @return offset of this register
-       */
-      NiFpgaEx_Register getOffset() const;
+    /**
+     * Gets the offset of this register.
+     *
+     * @return offset of this register
+     */
+    NiFpgaEx_Register getOffset() const;
 
-      /**
-       * Gets whether this is an indicator as opposed to a control.
-       *
-       * @return whether this is an indicator
-       */
-      bool isIndicator() const;
+    /**
+     * Gets whether this is an indicator as opposed to a control.
+     *
+     * @return whether this is an indicator
+     */
+    bool isIndicator() const;
 
-      /**
-       * Gets whether this is a control as opposed to an indicator.
-       *
-       * @return whether this is a control
-       */
-      bool isControl() const;
+    /**
+     * Gets whether this is a control as opposed to an indicator.
+     *
+     * @return whether this is a control
+     */
+    bool isControl() const;
 
-      /**
-       * Gets whether this is an array control or indicator.
-       *
-       * @return whether this is an array
-       */
-      bool isArray() const;
+    /**
+     * Gets whether this is an array control or indicator.
+     *
+     * @return whether this is an array
+     */
+    bool isArray() const;
 
-      /**
-       * Gets whether reading or writing may timeout.
-       *
-       * @return whether reading or writing may timeout
-       */
-      bool isAccessMayTimeout() const;
+    /**
+     * Gets whether reading or writing may timeout.
+     *
+     * @return whether reading or writing may timeout
+     */
+    bool isAccessMayTimeout() const;
 
-      virtual bool matches(const std::string&    name,
-                           NiFpgaEx_ResourceType type) const;
+    virtual bool matches(const std::string& name, NiFpgaEx_ResourceType type) const;
 
-   protected:
-      // NOTE: members can't be const or this can't be used in std::vector, etc.
-      NiFpgaEx_Register offset;
-      bool              indicator;
-      bool              array;
-      bool              accessMayTimeout;
+protected:
+    // NOTE: members can't be const or this can't be used in std::vector, etc.
+    NiFpgaEx_Register offset;
+    bool indicator;
+    bool array;
+    bool accessMayTimeout;
 };
 
 typedef std::vector<RegisterInfo> RegisterInfoVector;
