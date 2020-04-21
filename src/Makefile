@@ -19,7 +19,7 @@ CXX	= $(CROSS_COMPILE)g++
 CPP	= $(CROSS_COMPILE)cpp
 
 CXXFLAGS += \
-	-Wall \
+	-Wall -Wextra \
 	-fPIC \
 	-fvisibility=hidden \
 	-std=c++17 \
@@ -57,6 +57,7 @@ NIFPGA_OBJECTS := \
 	SysfsFile.o \
 	Type.o \
 	libb64/cdecode.o \
+	dtgen.o \
 
 libNiFpga.so: $(NIFPGA_OBJECTS) .libNiFpga.so.symalias .libNiFpga.so.map
 	@echo '  LD    ' $@
