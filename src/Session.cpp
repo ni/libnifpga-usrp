@@ -68,11 +68,8 @@ Session::Session(
 
     alreadyDownloaded = download();
 
-    const auto fpgaAddressSpaceSize =
-        SysfsFile(device, "nirio_fpga_address_space_size").readU32();
-
-    if (SysfsFile(device, "nirio_mmap_registers").readBool())
-        personalityFile->mapMemory(fpgaAddressSpaceSize);
+    const auto fpgaAddressSpaceSize = SysfsFile(device, "fpga_size").readU32();
+    personalityFile->mapMemory(fpgaAddressSpaceSize);
 
     // for every FIFO in this bitfile
     for (auto it = bitfile.getFifos().cbegin(), end = bitfile.getFifos().cend();
