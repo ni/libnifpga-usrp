@@ -221,7 +221,7 @@ void Fifo::readOrWrite(typename T::CType* data,
 
     // We implement read/write in user-mode through acquire/release if possible
     // for easier debugging.
-    bool acquireRelease = true;
+    const bool acquireRelease = false;
     if (acquireRelease) {
         acquireWithWait(elementsRequested, timeout, elementsRemaining);
 
