@@ -150,7 +150,7 @@ FifoSysfsFile::FifoSysfsFile(const std::string& device,
     : SysfsFile(baseSysfsPath, errnoMap)
 {
     std::ostringstream temp;
-    temp << device << '!' << "fifo" << fifo;
+    temp << device << "fifo" << fifo;
     path = joinPath(path, temp.str(), attribute);
 }
 
