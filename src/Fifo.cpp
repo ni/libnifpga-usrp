@@ -152,8 +152,6 @@ Fifo::Fifo(const FifoInfo& fifo, const std::string& device)
     , started(false)
     , hardwareElementBytes(
           FifoSysfsFile(device, number, "nirio_element_bytes", errnoMap).readU32())
-    , paddingBytes(
-          FifoSysfsFile(device, number, "nirio_padding_bytes", errnoMap).readU32())
     ,
     // depth assigned below
     // size assigned below
@@ -186,8 +184,8 @@ void Fifo::calculateDimensions(const size_t requestedDepth,
     //       devices with coerce to larger depths, but this is fine since it
     //       won't perform any worse, and won't affect applications regarding
     //       buffer wrap-around since they don't support acquire/release anyway
-    actualSize  = pageRound(requestedDepth * hardwareElementBytes + paddingBytes, gpu);
-    actualDepth = (actualSize - paddingBytes) / hardwareElementBytes;
+    actualSize  = pageRound(requestedDepth * hardwareElementBytes, gpu);
+    actualDepth = actualSize / hardwareElementBytes;
 }
 
 // precondition: lock is locked

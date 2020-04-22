@@ -138,7 +138,6 @@ private:
     bool started; ///< Whether currently started.
     /// Number of bytes per element transferred between hardware and driver.
     const size_t hardwareElementBytes;
-    const size_t paddingBytes; ///< Buffer padding in bytes.
     size_t depth; ///< Total depth in elements.
     size_t size; ///< Total size in bytes.
     void* buffer; ///< Host or GPU memory buffer.
