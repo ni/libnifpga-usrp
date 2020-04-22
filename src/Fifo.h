@@ -140,7 +140,6 @@ private:
     std::unique_ptr<DeviceFile> file; ///< FIFO character device file.
     const FifoSysfsFile startedFile;
     const FifoSysfsFile availableFile;
-    const FifoSysfsFile acquireFile;
     const FifoSysfsFile releaseFile;
 
     Fifo(const Fifo&) = delete;

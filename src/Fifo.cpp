@@ -125,7 +125,6 @@ Fifo::Fifo(const FifoInfo& fifo, const std::string& device)
     , next(0)
     , startedFile(device, number, "started", errnoMap)
     , availableFile(device, number, "elements_available", errnoMap)
-    , acquireFile(device, number, "nirio_acquire_elements", errnoMap)
     , releaseFile(device, number, "nirio_release_elements", errnoMap)
 {
     // calculate depth and size
