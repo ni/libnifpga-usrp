@@ -176,7 +176,6 @@ private:
     const std::string device;
     FileLock fileLock;
     DeviceFile boardFile;
-    std::unique_ptr<DeviceFile> personalityFile;
     const SysfsFile resetFile;
     const uint32_t baseAddressOnDevice;
 
@@ -223,7 +222,7 @@ void Session::readOrWrite(
     offset -= baseAddressOnDevice;
     // 32-bit and smaller accesses are done by a single 32-bit access to the
     // mapped registers file
-    if ((IsSingle || count == 1) && T::elementBytes <= 4 && personalityFile->isMapped()) {
+    if ((IsSingle || count == 1) && T::elementBytes <= 4 && boardFile.isMapped()) {
         // Helper type to select which form of mapped access should be used; for
         // all integral types, use a 32-bit unsigned access; use float for Sgl
         typedef
@@ -234,9 +233,9 @@ void Session::readOrWrite(
         // NOTE: we don't bother setting -1 on error for reads because we do that
         //       in NiFpga.cpp
         if (IsWrite)
-            personalityFile->mappedWrite<MappedType>(offset, *values);
+            boardFile.mappedWrite<MappedType>(offset, *values);
         else
-            *values = personalityFile->mappedRead<MappedType>(offset);
+            *values = boardFile.mappedRead<MappedType>(offset);
     }
     // 64-bit and higher accesses are done through an ioctl for safety and
     // performance reasons. The "array engine" on the FPGA expects that one
@@ -271,10 +270,10 @@ void Session::readOrWrite(
             // copy the entire payload all at once since ioctl packs as T::CType[]
             memcpy(buffer + sizeof(nirio_array), values, payloadSize);
             // send the ioctl
-            personalityFile->ioctl(NIRIO_IOC_ARRAY_WRITE, buffer);
+            boardFile.ioctl(NIRIO_IOC_ARRAY_WRITE, buffer);
         } else {
             // send the ioctl
-            personalityFile->ioctl(NIRIO_IOC_ARRAY_READ, buffer);
+            boardFile.ioctl(NIRIO_IOC_ARRAY_READ, buffer);
             // copy the entire payload all at once since ioctl packs as T::CType[]
             memcpy(values, buffer + sizeof(nirio_array), payloadSize);
         }

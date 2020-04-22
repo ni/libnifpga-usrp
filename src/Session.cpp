@@ -43,10 +43,8 @@ Session::Session(
     const std::string& bitfilePath, const std::string& device, bool& alreadyDownloaded)
     : bitfile(bitfilePath)
     , device(device)
-    , fileLock(DeviceFile::getCdevPath(device, "board"))
-    , boardFile(DeviceFile::getCdevPath(device, "board"),
-          DeviceFile::WriteOnly,
-          alreadyErrnoMap)
+    , fileLock(DeviceFile::getCdevPath(device))
+    , boardFile(DeviceFile::getCdevPath(device), DeviceFile::WriteOnly, alreadyErrnoMap)
     , resetFile(device, "reset_vi")
     , baseAddressOnDevice(bitfile.getBaseAddressOnDevice())
 {
@@ -69,7 +67,7 @@ Session::Session(
     alreadyDownloaded = download();
 
     const auto fpgaAddressSpaceSize = SysfsFile(device, "fpga_size").readU32();
-    personalityFile->mapMemory(fpgaAddressSpaceSize);
+    boardFile.mapMemory(fpgaAddressSpaceSize);
 
     // for every FIFO in this bitfile
     for (auto it = bitfile.getFifos().cbegin(), end = bitfile.getFifos().cend();
@@ -166,7 +164,6 @@ bool Session::download(bool force)
 {
     bool alreadyRunning = false;
 
-    personalityFile.reset();
     setStoppedAllFifos();
 
     // actually do the download by writing the personality blob
@@ -176,13 +173,6 @@ bool Session::download(bool force)
     } catch (const FpgaAlreadyRunningException&) {
         alreadyRunning = true;
     }
-
-    // open and map the registers file
-    //
-    // NOTE: personalityFile must be constructed after the personalityBlob was
-    //       downloaded to boardFile because file didn't exist before that
-    personalityFile.reset(new DeviceFile(
-        DeviceFile::getCdevPath(device, "personality"), DeviceFile::ReadWrite));
 
     return alreadyRunning;
 }

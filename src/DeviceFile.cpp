@@ -179,18 +179,17 @@ bool DeviceFile::isMapped() const
     return mapped;
 }
 
-std::string DeviceFile::getCdevPath(
-    const std::string& device, const std::string& filename)
+std::string DeviceFile::getCdevPath(const std::string& device)
 {
-    return joinPath("/dev", device, filename);
+    return joinPath("/dev", device);
 }
 
 std::string DeviceFile::getFifoCdevPath(
     const std::string& device, const NiFpgaEx_DmaFifo fifo)
 {
     std::ostringstream temp;
-    temp << "fifo" << fifo;
-    return getCdevPath(device, temp.str());
+    temp << device << "fifo" << fifo;
+    return joinPath("/dev", temp.str());
 }
 
 } // namespace nirio

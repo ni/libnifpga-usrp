@@ -79,20 +79,18 @@ public:
 
     /**
      * Creates a path to a character device file for a given device, such as
-     * "/dev/RIO0/personality".
+     * "/dev/nirio0"
      *
-     * @param device device name, such as "RIO0"
-     * @param filename character device filename, such as "personality"
+     * @param device device name, such as "nirio0"
      * @return path to a character device file
      */
-    static std::string getCdevPath(
-        const std::string& device, const std::string& filename);
+    static std::string getCdevPath(const std::string& device);
 
     /**
      * Creates a path to a character device file for FIFO of a given device,
-     * such as "/dev/RIO0/fifo0".
+     * such as "/dev/nirio0fifo0".
      *
-     * @param device device name, such as "RIO0"
+     * @param device device name, such as "nirio0"
      * @param fifo FIFO number
      * @return path to a character device file
      */
