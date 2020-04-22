@@ -56,6 +56,9 @@ Session::Session(
     if (!fileLock.tryLockReader())
         NIRIO_THROW(InvalidResourceNameException());
 
+// TODO auchter: This should at least validate the bitfile signature
+// against the sysfs file that contains the signature.
+
 // TODO auchter: Should we check targetclass against anything?
 #if 0 
     // ensure the target class matches
