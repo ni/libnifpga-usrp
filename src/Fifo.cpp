@@ -72,10 +72,6 @@ public:
 class FifoBufferNull : public FifoBufferInterface
 {
 public:
-    uint32_t getType() const
-    {
-        return MEMORY_TYPE_USER;
-    }
     size_t getSize() const
     {
         return 0;
@@ -101,10 +97,6 @@ public:
             NIRIO_THROW(MemoryFullException());
     }
 
-    uint32_t getType() const
-    {
-        return MEMORY_TYPE_USER;
-    }
     size_t getSize() const
     {
         return size;

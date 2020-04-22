@@ -39,16 +39,14 @@ public:
     {
         nirio_fifo_set_buffer_info info;
 
-        info.bytes       = getSize();
-        info.buff_ptr    = reinterpret_cast<unsigned long>(getBuffer());
-        info.memory_type = getType();
+        info.bytes    = getSize();
+        info.buff_ptr = reinterpret_cast<unsigned long>(getBuffer());
 
         return info;
     }
 
-    virtual size_t getSize() const   = 0;
-    virtual void* getBuffer() const  = 0;
-    virtual uint32_t getType() const = 0;
+    virtual size_t getSize() const  = 0;
+    virtual void* getBuffer() const = 0;
 };
 
 /**
