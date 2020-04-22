@@ -26,7 +26,6 @@ NiFpga_Close
 NiFpga_ConfigureFifo
 NiFpga_ConfigureFifo2
 NiFpga_Download
-NiFpgaEx_ClearFpga
 NiFpgaEx_ConfigureFifoGpu
 NiFpga_ConfigureFifoGpu
 NiFpgaEx_FindResource

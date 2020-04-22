@@ -721,40 +721,6 @@ NiFpga_Status NiFpga_GetPeerToPeerFifoEndpoint(const NiFpga_Session session,
     return NiFpga_Status_FeatureNotSupported;
 }
 
-// Macro to early return if there are any open sessions, and prevent any other
-// sessions from opening while still in enclosing code block. Each session
-// grabs a reader lock to prevent shenanigans while any sessions are opened, so
-// if we couldn't get the writer, there must still be sessions opened.
-//
-// NOTE: Not in a macro do-while so that file lock is held the whole time.
-#define NO_OPEN_SESSIONS_GUARD                                                         \
-    FileLock fileLock(DeviceFile::getCdevPath(resource, "board"));                     \
-    if (!fileLock.tryLockWriter())                                                     \
-        NIRIO_THROW(FpgaBusyFpgaInterfaceCApiException());                             \
-    /* sanity check to ensure there realy are no opened sessions */                    \
-    const auto sessions = SysfsFile(resource, "nirio_personality_refcount").readU32(); \
-    if (sessions != 0) {                                                               \
-        assert(false);                                                                 \
-        NIRIO_THROW(SoftwareFaultException());                                         \
-    }
-
-NiFpga_Status NiFpgaEx_ClearFpga(const char* const resource)
-{
-    // validate parameters
-    if (!resource)
-        return NiFpga_Status_InvalidParameter;
-    // wrap all code that might throw in a big safety net
-    Status status;
-    try {
-        // early return if any sessions are opened, and prevent any from opening
-        NO_OPEN_SESSIONS_GUARD
-        // tell kernel to clear the FPGA
-        SysfsFile(resource, "nirio_clear").write(true);
-    }
-    CATCH_ALL_AND_MERGE_STATUS(status)
-    return status;
-}
-
 namespace {
 
 const class : public ErrnoMap

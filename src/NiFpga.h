@@ -2741,16 +2741,6 @@ NiFpga_Status NiFpga_GetPeerToPeerFifoEndpoint(
     NiFpga_Session session, NiFpgaEx_PeerToPeerFifo fifo, uint32_t* endpoint);
 
 /**
- * Clears the FPGA personality on a given device so that nothing is running.
- * An error will be returned if there are currently any sessions opened to this
- * device.
- *
- * @param resource RIO resource string of device ("RIO0")
- * @return result of the call
- */
-NiFpga_Status NiFpgaEx_ClearFpga(const char* resource);
-
-/**
  * Configures a FIFO to DMA data directly to/from an NVIDIA GPU buffer using
  * NVIDIA's GPUDirect RDMA feature. This feature is only supported for FlexRIO
  * PXIe-796xR devices. This requires nirio_nvidia_buffer.ko to be loaded;
