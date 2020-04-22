@@ -151,7 +151,7 @@ Fifo::Fifo(const FifoInfo& fifo, const std::string& device)
     , device(device)
     , started(false)
     , hardwareElementBytes(
-          FifoSysfsFile(device, number, "nirio_element_bytes", errnoMap).readU32())
+          FifoSysfsFile(device, number, "element_bytes", errnoMap).readU32())
     ,
     // depth assigned below
     // size assigned below
