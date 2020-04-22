@@ -315,20 +315,6 @@ void Session::configureFifo(
     fifos[fifo]->configure(requestedDepth, actualDepth);
 }
 
-void Session::configureFifoGpu(
-    const NiFpgaEx_DmaFifo fifo, const size_t depth, void* const buffer)
-
-{
-    // validate parameters
-    assert(depth != 0); // checked in NiFpga.cpp
-    assert(buffer); // checked in NiFpga.cpp
-    if (fifo >= fifos.size())
-        NIRIO_THROW(InvalidParameterException());
-    // pass it on
-    fifos[fifo]->configureGpu(depth, buffer);
-}
-
-
 void Session::startFifo(const NiFpgaEx_DmaFifo fifo)
 {
     // validate parameters

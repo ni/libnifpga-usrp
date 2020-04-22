@@ -87,8 +87,6 @@ public:
 
     void configureFifo(NiFpgaEx_DmaFifo fifo, size_t requestedDepth, size_t* actualDepth);
 
-    void configureFifoGpu(NiFpgaEx_DmaFifo fifo, size_t depth, void* buffer);
-
     void startFifo(NiFpgaEx_DmaFifo fifo);
 
     void stopFifo(NiFpgaEx_DmaFifo fifo);

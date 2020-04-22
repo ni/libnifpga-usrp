@@ -2740,36 +2740,6 @@ NiFpga_Status NiFpga_ReleaseFifoElements(
 NiFpga_Status NiFpga_GetPeerToPeerFifoEndpoint(
     NiFpga_Session session, NiFpgaEx_PeerToPeerFifo fifo, uint32_t* endpoint);
 
-/**
- * Configures a FIFO to DMA data directly to/from an NVIDIA GPU buffer using
- * NVIDIA's GPUDirect RDMA feature. This feature is only supported for FlexRIO
- * PXIe-796xR devices. This requires nirio_nvidia_buffer.ko to be loaded;
- * otherwise, NiFpga_Status_FeatureNotSupported will be returned. The user must
- * allocate the GPU buffer from NVIDIA's APIs, i.e. by using cudaMalloc(). After
- * calling NiFpga_Reset() or NiFpga_Abort(), the user must explicitly call
- * NiFpgaEx_ConfigureFifoGpu() to re-configure any FIFOs that were previously
- * configured to use GPU buffers.
- *
- * @param session handle to a currently open session
- * @param fifo FIFO to configure
- * @param depth Number of elements in buffer.
- *              Because the total buffer size in bytes must be a multiple of
- *              64 KiB, depth in elements must be a multiple of:
- *               8192 for 64-bit elements (U64, I64),
- *              16384 for 32-bit elements (U32, I32),
- *              32768 for 16-bit elements (U16, I16), or
- *              65536 for  8-bit elements (U8, I8, Bool).
- * @param buffer pre-allocated GPU buffer, which must be a multiple of 64 KiB
- * @return result of the call
- */
-NiFpga_Status NiFpgaEx_ConfigureFifoGpu(
-    NiFpga_Session session, NiFpgaEx_DmaFifo fifo, size_t depth, void* buffer);
-
-NiFpga_Status NiFpga_ConfigureFifoGpu(const NiFpga_Session session,
-    const NiFpgaEx_DmaFifo fifo,
-    const size_t depth,
-    void* const buffer);
-
 NiFpga_Status NiFpga_FindRegisterPrivate(const NiFpga_Session session,
     const char* const registerName,
     uint32_t expectedResourceType,

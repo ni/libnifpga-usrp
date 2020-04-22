@@ -63,8 +63,6 @@ public:
 
     void configure(size_t requestedDepth, size_t* actualDepth);
 
-    void configureGpu(size_t depth, void* buffer);
-
     void start();
 
     void stop();
@@ -107,15 +105,13 @@ private:
         typename T::CType*& elements, size_t elementsAcquired);
 
     void calculateDimensions(
-        size_t requestedDepth, size_t& actualDepth, size_t& actualSize, bool gpu) const;
+        size_t requestedDepth, size_t& actualDepth, size_t& actualSize) const;
 
     void setBuffer(const FifoBufferInterface&);
 
     void ensureConfigured();
 
     void ensureConfiguredAndStarted();
-
-    void configureCpuOrGpu(size_t requestedDepth, size_t* actualDepth, void* gpuBuffer);
 
     /// Polls (from usermode) until all elements are available.
     size_t pollUntilAvailable(
@@ -140,8 +136,7 @@ private:
     const size_t hardwareElementBytes;
     size_t depth; ///< Total depth in elements.
     size_t size; ///< Total size in bytes.
-    void* buffer; ///< Host or GPU memory buffer.
-    bool gpu; ///< Whether buffer is a GPU buffer.
+    void* buffer; ///< Host memory buffer.
     size_t acquired; ///< Current number acquired.
     size_t next; ///< Next element to be acquired.
     std::unique_ptr<DeviceFile> file; ///< FIFO character device file.
@@ -166,14 +161,10 @@ void Fifo::doContiguousAcquireBookkeeping(
     if (next == depth)
         next = 0;
 
-    if (!gpu) {
-        if (hostToTarget)
-            VALGRIND_MAKE_MEM_UNDEFINED(
-                elements, elementsAcquired * type.getElementBytes());
-        else
-            VALGRIND_MAKE_MEM_DEFINED(
-                elements, elementsAcquired * type.getElementBytes());
-    }
+    if (hostToTarget)
+        VALGRIND_MAKE_MEM_UNDEFINED(elements, elementsAcquired * type.getElementBytes());
+    else
+        VALGRIND_MAKE_MEM_DEFINED(elements, elementsAcquired * type.getElementBytes());
 }
 
 template <typename T, bool IsWrite>

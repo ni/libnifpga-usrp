@@ -489,34 +489,6 @@ NiFpga_Status NiFpga_ConfigureFifo2(const NiFpga_Session session,
     return status;
 }
 
-NiFpga_Status NiFpgaEx_ConfigureFifoGpu(const NiFpga_Session session,
-    const NiFpgaEx_DmaFifo fifo,
-    const size_t depth,
-    void* const buffer)
-{
-    // validate parameters
-    if (!session || !buffer)
-        return NiFpga_Status_InvalidParameter;
-    if (depth == 0)
-        return NiFpga_Status_BadDepth;
-    // wrap all code that might throw in a big safety net
-    Status status;
-    try {
-        auto& sessionObject = getSession(session);
-        sessionObject.configureFifoGpu(fifo, depth, buffer);
-    }
-    CATCH_ALL_AND_MERGE_STATUS(status)
-    return status;
-}
-
-NiFpga_Status NiFpga_ConfigureFifoGpu(const NiFpga_Session session,
-    const NiFpgaEx_DmaFifo fifo,
-    const size_t depth,
-    void* const buffer)
-{
-    return NiFpgaEx_ConfigureFifoGpu(session, fifo, depth, buffer);
-}
-
 NiFpga_Status NiFpga_StartFifo(const NiFpga_Session session, const NiFpgaEx_DmaFifo fifo)
 {
     // validate parameters

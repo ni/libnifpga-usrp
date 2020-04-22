@@ -25,8 +25,6 @@ namespace {
 
 const auto pageSize = sysconf(_SC_PAGESIZE);
 
-const auto pageSizeGpu = 65536; // 64 KiB
-
 const auto minimumDepth = 1 << 14; // 16384 elements
 
 size_t pageAlign(const size_t value, const size_t size)
@@ -34,9 +32,9 @@ size_t pageAlign(const size_t value, const size_t size)
     return value & ~(size - 1);
 }
 
-size_t pageRound(const size_t value, const bool gpu)
+size_t pageRound(const size_t value)
 {
-    const auto size = gpu ? pageSizeGpu : pageSize;
+    const auto size = pageSize;
     return pageAlign(value + size - 1, size);
 }
 
@@ -60,7 +58,6 @@ public:
             // NOTE: won't happen unless something happens behind our back
             case ENODATA:
                 throw ElementsNotPermissibleToBeAcquiredException();
-            // a GPU buffer was cudaFree'd out from under us
             case ENOTCONN:
                 throw ResourceNotFoundException();
             // pass on the rest
@@ -122,30 +119,6 @@ private:
     size_t size;
 };
 
-class FifoBufferGpu : public FifoBufferInterface
-{
-public:
-    FifoBufferGpu(void* buffer, size_t size) : buffer(buffer), size(size) {}
-
-    uint32_t getType() const
-    {
-        return MEMORY_TYPE_NVIDIA;
-    }
-    size_t getSize() const
-    {
-        return size;
-    }
-    void* getBuffer() const
-    {
-        return buffer;
-    }
-
-private:
-    void* buffer;
-    size_t size;
-};
-
-
 Fifo::Fifo(const FifoInfo& fifo, const std::string& device)
     : FifoInfo(fifo)
     , device(device)
@@ -156,7 +129,6 @@ Fifo::Fifo(const FifoInfo& fifo, const std::string& device)
     // depth assigned below
     // size assigned below
     buffer(NULL)
-    , gpu(false)
     , acquired(0)
     , next(0)
     , startedFile(device, number, "started", errnoMap)
@@ -165,16 +137,14 @@ Fifo::Fifo(const FifoInfo& fifo, const std::string& device)
     , releaseFile(device, number, "nirio_release_elements", errnoMap)
 {
     // calculate depth and size
-    calculateDimensions(minimumDepth, depth, size, false /* gpu */);
+    calculateDimensions(minimumDepth, depth, size);
 }
 
 Fifo::~Fifo() noexcept(true) {}
 
 // precondition: in constructor, or lock is locked
-void Fifo::calculateDimensions(const size_t requestedDepth,
-    size_t& actualDepth,
-    size_t& actualSize,
-    const bool gpu) const
+void Fifo::calculateDimensions(
+    const size_t requestedDepth, size_t& actualDepth, size_t& actualSize) const
 {
     // page-round both because CHInCh-based devices perform better when using
     // whole pages, but more importantly because when using bounce-buffering,
@@ -184,21 +154,16 @@ void Fifo::calculateDimensions(const size_t requestedDepth,
     //       devices with coerce to larger depths, but this is fine since it
     //       won't perform any worse, and won't affect applications regarding
     //       buffer wrap-around since they don't support acquire/release anyway
-    actualSize  = pageRound(requestedDepth * hardwareElementBytes, gpu);
+    actualSize  = pageRound(requestedDepth * hardwareElementBytes);
     actualDepth = actualSize / hardwareElementBytes;
 }
 
 // precondition: lock is locked
 void Fifo::ensureConfigured()
 {
-    if (!file) {
-        // no file in GPU mode means the GPU buffer cudaFree'd out from under us
-        if (gpu)
-            NIRIO_THROW(TransferAbortedException());
-        // in CPU mode, just pretend they called configure with the old depth
-        else
-            configure(depth, NULL);
-    }
+    // in CPU mode, just pretend they called configure with the old depth
+    if (!file)
+        configure(depth, NULL);
 }
 
 // precondition: lock is locked
@@ -232,21 +197,6 @@ void Fifo::setBuffer(const FifoBufferInterface& fifoBuf)
 
 void Fifo::configure(const size_t requestedDepth, size_t* const actualDepth)
 {
-    configureCpuOrGpu(requestedDepth, actualDepth, NULL);
-}
-
-void Fifo::configureGpu(const size_t depth, void* const buffer)
-
-{
-    configureCpuOrGpu(depth, NULL, buffer);
-}
-
-void Fifo::configureCpuOrGpu(
-    const size_t requestedDepth, size_t* const actualDepth, void* const gpuBuffer)
-
-{
-    // we're working with a GPU buffer if they passed one
-    const bool configuringGpu = gpuBuffer != NULL;
     // validate parameters
     assert(requestedDepth != 0); // checked in NiFpga.cpp
     // grab the lock
@@ -257,14 +207,10 @@ void Fifo::configureCpuOrGpu(
 
     // calculate the actual dimensions
     size_t localActualDepth, actualSize;
-    calculateDimensions(requestedDepth, localActualDepth, actualSize, configuringGpu);
-    // GPU buffers must already be sized correctly
-    if (configuringGpu && requestedDepth != localActualDepth)
-        NIRIO_THROW(BadDepthException());
+    calculateDimensions(requestedDepth, localActualDepth, actualSize);
 
     // We can reuse the buffer if reconfiguring a CPU buffer of the same size.
-    // If GPU, we can't reuse because they may've cudaFree'd out from under us.
-    if (file && !configuringGpu && !gpu && actualSize == size) {
+    if (file && actualSize == size) {
         // if the sizes are the same, the depths should be
         assert(localActualDepth == depth);
         // if a file is open, we should have a buffer
@@ -285,13 +231,7 @@ void Fifo::configureCpuOrGpu(
             file.reset(new DeviceFile(DeviceFile::getFifoCdevPath(device, number),
                 hostToTarget ? DeviceFile::WriteOnly : DeviceFile::ReadOnly,
                 errnoMap));
-        // we're about to change the buffer member, so update what type it is
-        gpu = configuringGpu;
-        // if GPU, just use the buffer they gave us
-        if (gpu)
-            fifoBuffer.reset(new FifoBufferGpu(gpuBuffer, actualSize));
-        else
-            fifoBuffer.reset(new FifoBufferHost(actualSize));
+        fifoBuffer.reset(new FifoBufferHost(actualSize));
 
         // set the buffer in the kernel
         setBuffer(*fifoBuffer);
@@ -383,31 +323,24 @@ void Fifo::release(const size_t elements)
     } catch (const TransferAbortedException&) {
         // if someone reset or otherwise stopped the FIFO behind our back, take note
         setStopped();
-    } catch (const ResourceNotFoundException&) {
-        assert(gpu);
-        setStopped();
-        // round to public error code
-        NIRIO_THROW(TransferAbortedException());
     }
 
-    if (!gpu) {
-        const char* buf               = static_cast<const char*>(buffer);
-        const size_t bufSize          = depth * type.getElementBytes();
-        const size_t acquiredInBytes  = acquired * type.getElementBytes();
-        const size_t releasingInBytes = elements * type.getElementBytes();
-        const size_t nextInBytes      = next * type.getElementBytes();
+    const char* buf               = static_cast<const char*>(buffer);
+    const size_t bufSize          = depth * type.getElementBytes();
+    const size_t acquiredInBytes  = acquired * type.getElementBytes();
+    const size_t releasingInBytes = elements * type.getElementBytes();
+    const size_t nextInBytes      = next * type.getElementBytes();
 
-        if (nextInBytes >= acquiredInBytes) {
-            VALGRIND_MAKE_MEM_NOACCESS(
-                buf + (nextInBytes - acquiredInBytes), releasingInBytes);
-        } else {
-            // we've got a wrap to deal with:
-            const size_t start = nextInBytes + bufSize - acquiredInBytes;
-            const size_t len1  = std::min(bufSize - start, releasingInBytes);
-            const size_t len2  = releasingInBytes - len1;
-            VALGRIND_MAKE_MEM_NOACCESS(buf + start, len1);
-            VALGRIND_MAKE_MEM_NOACCESS(buf, len2);
-        }
+    if (nextInBytes >= acquiredInBytes) {
+        VALGRIND_MAKE_MEM_NOACCESS(
+            buf + (nextInBytes - acquiredInBytes), releasingInBytes);
+    } else {
+        // we've got a wrap to deal with:
+        const size_t start = nextInBytes + bufSize - acquiredInBytes;
+        const size_t len1  = std::min(bufSize - start, releasingInBytes);
+        const size_t len2  = releasingInBytes - len1;
+        VALGRIND_MAKE_MEM_NOACCESS(buf + start, len1);
+        VALGRIND_MAKE_MEM_NOACCESS(buf, len2);
     }
 
     // if they successfully released, remember it
@@ -430,13 +363,6 @@ void Fifo::acquireWithWait(const size_t elementsRequested,
         setStopped();
         start();
         file->ioctl(NIRIO_IOC_FIFO_ACQUIRE_WAIT, &fifo_wait);
-    } catch (const ResourceNotFoundException&) {
-        // GPU buffer was cudaFree'd out from under us
-        assert(gpu);
-        // clean up our members but don't bother trying to restart
-        setStopped();
-        // round to public error code
-        NIRIO_THROW(TransferAbortedException());
     }
 
     if (elementsRemaining)
@@ -457,13 +383,6 @@ void Fifo::getElementsAvailable(size_t& elementsAvailable)
         setStopped();
         start();
         available = availableFile.readU32();
-    } catch (const ResourceNotFoundException&) {
-        // GPU buffer was cudaFree'd out from under us
-        assert(gpu);
-        // clean up our members but don't bother trying to restart
-        setStopped();
-        // round to public error code
-        NIRIO_THROW(TransferAbortedException());
     }
 
     elementsAvailable = available;
