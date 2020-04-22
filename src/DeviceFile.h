@@ -46,7 +46,7 @@ public:
 
     off_t seek(off_t offset, int whence) const;
 
-    void ioctl(unsigned long int request, void* buffer) const;
+    void ioctl(unsigned long int request, void* buffer = NULL) const;
 
     void mapMemory(const size_t size);
 
