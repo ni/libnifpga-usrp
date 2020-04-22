@@ -19,10 +19,10 @@ CXX	= $(CROSS_COMPILE)g++
 CPP	= $(CROSS_COMPILE)cpp
 
 CXXFLAGS += \
-	-Wall -Wextra \
-	-std=c++0x \
+	-Wall \
 	-fPIC \
 	-fvisibility=hidden \
+	-std=c++17 \
 	-pthread \
 	-I"../include" \
 	-Wold-style-cast \
