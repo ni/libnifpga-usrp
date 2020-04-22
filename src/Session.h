@@ -19,6 +19,7 @@
 #include "Exception.h"
 #include "Fifo.h"
 #include "FileLock.h"
+#include "PackedArray.h"
 #include "Type.h"
 #include <linux/nirio.h>
 #include <type_traits>
@@ -245,39 +246,29 @@ void Session::readOrWrite(
     // with one ioctl. Other alternatives like global locking would incur more
     // user/kernel transitions that would negatively affect performance.
     else {
-// TODO auchter
-#if 0
-        const auto payloadSize = T::elementBytes * count;
-        // make enough room for the input struct as well as the output data
-        //
-        // NOTE: we only dynamically allocate if we need more than 8 bytes so
-        //       that 64-bit accesses are faster and more deterministic
-        uint8_t buffer64[sizeof(nirio_array) + 8];
-        std::unique_ptr<uint8_t[]> bufferDynamic;
-        uint8_t* buffer; // assigned below
-        if (payloadSize > 8) {
-            bufferDynamic.reset(new uint8_t[sizeof(nirio_array) + payloadSize]);
-            buffer = bufferDynamic.get();
-        } else
-            buffer = buffer64;
-        // treat the first part as a struct and fill it in
-        auto& array         = *reinterpret_cast<nirio_array*>(buffer);
-        array.offset        = offset;
-        array.bits_per_elem = T::logicalBits; // 1 for Bool, 8 for U8
-        array.num_elem      = count;
-        // either read or write
-        if (IsWrite) {
-            // copy the entire payload all at once since ioctl packs as T::CType[]
-            memcpy(buffer + sizeof(nirio_array), values, payloadSize);
-            // send the ioctl
-            boardFile.ioctl(NIRIO_IOC_ARRAY_WRITE, buffer);
-        } else {
-            // send the ioctl
-            boardFile.ioctl(NIRIO_IOC_ARRAY_READ, buffer);
-            // copy the entire payload all at once since ioctl packs as T::CType[]
-            memcpy(values, buffer + sizeof(nirio_array), payloadSize);
+        uint8_t stackBuffer[128];
+        std::unique_ptr<uint8_t[]> heapBuffer;
+        struct ioctl_nirio_array* array;
+        const size_t u32Count = packedArraySize<T::logicalBits>(count);
+        const size_t size     = sizeof(*array) + u32Count * sizeof(uint32_t);
+
+        if (size < sizeof(stackBuffer))
+            array = reinterpret_cast<ioctl_nirio_array*>(stackBuffer);
+        else {
+            heapBuffer.reset(new uint8_t[size]);
+            array = reinterpret_cast<ioctl_nirio_array*>(heapBuffer.get());
         }
-#endif
+
+        array->offset = offset;
+        array->count  = u32Count;
+
+        if (IsWrite) {
+            packArray<T::logicalBits>(array->data, values, count);
+            boardFile.ioctl(NIRIO_IOC_WRITE_ARRAY, array);
+        } else {
+            boardFile.ioctl(NIRIO_IOC_READ_ARRAY, array);
+            unpackArray<T::logicalBits>(array->data, values, count);
+        }
     }
     // if access may timeout, check for errors
     if (isAccessMayTimeout(reg))
