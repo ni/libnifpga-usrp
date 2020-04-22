@@ -20,8 +20,8 @@
 #include "FifoInfo.h"
 #include "SysfsFile.h"
 #include "Timer.h"
-#include "nirio.h"
 #include "valgrind.h"
+#include <linux/nirio.h>
 #include <algorithm> // std::min
 #include <cassert> // assert
 #include <cstring>
@@ -30,17 +30,15 @@
 
 namespace nirio {
 
+// TODO auchter: This needs to be reworked
 class FifoBufferInterface
 {
 public:
     virtual ~FifoBufferInterface(){};
 
-    nirio_fifo_set_buffer_info getInfo() const
+    auto getInfo() const
     {
-        nirio_fifo_set_buffer_info info;
-
-        info.bytes    = getSize();
-        info.buff_ptr = reinterpret_cast<unsigned long>(getBuffer());
+        ioctl_nirio_fifo_set_buf info;
 
         return info;
     }

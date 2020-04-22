@@ -177,8 +177,8 @@ void Fifo::setBuffer(const FifoBufferInterface& fifoBuf)
     // if there's not an error, we should have a file
     assert(file);
     // write the size and buffer to configure the FIFO
-    nirio_fifo_set_buffer_info info = fifoBuf.getInfo();
-    file->ioctl(NIRIO_IOC_FIFO_SET_BUFFER, &info);
+    auto info = fifoBuf.getInfo();
+    file->ioctl(NIRIO_IOC_FIFO_SET_BUF, &info);
 
     // if we have a new buffer, we start from the beginning of it
     buffer   = fifoBuf.getBuffer();
@@ -344,21 +344,23 @@ void Fifo::acquireWithWait(const size_t elementsRequested,
     const uint32_t timeoutMs,
     size_t* const elementsRemaining)
 {
-    struct nirio_fifo_wait fifo_wait;
-    fifo_wait.wait_num_elem = elementsRequested, fifo_wait.timeout_ms = timeoutMs;
+    struct ioctl_nirio_fifo_acquire fifo_acq;
+
+    fifo_acq.elements   = elementsRequested;
+    fifo_acq.timeout_ms = timeoutMs;
     try {
-        file->ioctl(NIRIO_IOC_FIFO_ACQUIRE_WAIT, &fifo_wait);
+        file->ioctl(NIRIO_IOC_FIFO_ACQUIRE, &fifo_acq);
     } catch (const TransferAbortedException&) {
         // FIFO was stopped out from under us
         // clean up our members, restart, and try one more time to acquire
         setStopped();
         start();
-        file->ioctl(NIRIO_IOC_FIFO_ACQUIRE_WAIT, &fifo_wait);
+        file->ioctl(NIRIO_IOC_FIFO_ACQUIRE, &fifo_acq);
     }
 
     if (elementsRemaining)
-        *elementsRemaining = fifo_wait.num_elem_avail;
-    if (fifo_wait.timed_out)
+        *elementsRemaining = fifo_acq.available;
+    if (fifo_acq.timed_out)
         NIRIO_THROW(FifoTimeoutException());
 }
 

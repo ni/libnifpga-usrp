@@ -20,7 +20,7 @@
 #include "Fifo.h"
 #include "FileLock.h"
 #include "Type.h"
-#include "nirio.h"
+#include <linux/nirio.h>
 #include <type_traits>
 #include <cassert> // assert
 #include <cstring> // memcpy
@@ -245,6 +245,8 @@ void Session::readOrWrite(
     // with one ioctl. Other alternatives like global locking would incur more
     // user/kernel transitions that would negatively affect performance.
     else {
+// TODO auchter
+#if 0
         const auto payloadSize = T::elementBytes * count;
         // make enough room for the input struct as well as the output data
         //
@@ -275,6 +277,7 @@ void Session::readOrWrite(
             // copy the entire payload all at once since ioctl packs as T::CType[]
             memcpy(values, buffer + sizeof(nirio_array), payloadSize);
         }
+#endif
     }
     // if access may timeout, check for errors
     if (isAccessMayTimeout(reg))

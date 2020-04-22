@@ -16,6 +16,7 @@
 
 #include "ErrnoMap.h"
 #include "Status.h"
+#include <sys/ioctl.h>
 #include <string> // std::string
 
 namespace nirio {
