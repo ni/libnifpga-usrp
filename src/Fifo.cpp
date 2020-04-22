@@ -123,9 +123,6 @@ Fifo::Fifo(const FifoInfo& fifo, const std::string& device)
     buffer(NULL)
     , acquired(0)
     , next(0)
-    , startedFile(device, number, "started", errnoMap)
-    , availableFile(device, number, "elements_available", errnoMap)
-    , releaseFile(device, number, "nirio_release_elements", errnoMap)
 {
     // calculate depth and size
     calculateDimensions(minimumDepth, depth, size);
@@ -245,7 +242,7 @@ void Fifo::start()
     // reset or otherwise stopped the FIFO behind our back
     //
     // NOTE: EALREADY should be mapped to Success
-    startedFile.write(true);
+    file->ioctl(NIRIO_IOC_FIFO_START);
     started = true;
 }
 
@@ -307,10 +304,9 @@ void Fifo::release(const size_t elements)
     if (elements > acquired)
         NIRIO_THROW(BadReadWriteCountException());
     // just pass it on, assuming kernel will error if wrong
-    //
-    // TODO: refactor SysfsFile so each read/write doesn't open, which allocates
     try {
-        releaseFile.write(elements);
+        uint64_t elementsU64 = elements;
+        file->ioctl(NIRIO_IOC_FIFO_RELEASE, &elementsU64);
     } catch (const TransferAbortedException&) {
         // if someone reset or otherwise stopped the FIFO behind our back, take note
         setStopped();
@@ -366,16 +362,16 @@ void Fifo::acquireWithWait(const size_t elementsRequested,
 
 void Fifo::getElementsAvailable(size_t& elementsAvailable)
 {
-    size_t available;
+    uint64_t available;
 
     try {
-        available = availableFile.readU32();
+        file->ioctl(NIRIO_IOC_FIFO_GET_AVAIL, &available);
     } catch (const TransferAbortedException&) {
         // FIFO was stopped out from under us
         // clean up members, restart, and try one more time
         setStopped();
         start();
-        available = availableFile.readU32();
+        file->ioctl(NIRIO_IOC_FIFO_GET_AVAIL, &available);
     }
 
     elementsAvailable = available;

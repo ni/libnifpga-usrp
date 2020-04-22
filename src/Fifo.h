@@ -136,9 +136,6 @@ private:
     size_t acquired; ///< Current number acquired.
     size_t next; ///< Next element to be acquired.
     std::unique_ptr<DeviceFile> file; ///< FIFO character device file.
-    const FifoSysfsFile startedFile;
-    const FifoSysfsFile availableFile;
-    const FifoSysfsFile releaseFile;
 
     Fifo(const Fifo&) = delete;
     Fifo& operator=(const Fifo&) = delete;
