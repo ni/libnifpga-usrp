@@ -112,14 +112,6 @@ public:
         const ErrnoMap& errnoMap = ErrnoMap::instance);
 };
 
-class PersonalitySysfsFile : public SysfsFile
-{
-public:
-    PersonalitySysfsFile(const std::string& device,
-        const std::string& attribute,
-        const ErrnoMap& errnoMap = ErrnoMap::instance);
-};
-
 template <typename T>
 void SysfsFile::write(const T value) const
 {

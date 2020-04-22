@@ -177,7 +177,7 @@ private:
     FileLock fileLock;
     DeviceFile boardFile;
     std::unique_ptr<DeviceFile> personalityFile;
-    const PersonalitySysfsFile resetFile;
+    const SysfsFile resetFile;
     const uint32_t baseAddressOnDevice;
 
     typedef std::vector<std::unique_ptr<Fifo>> FifoVector;

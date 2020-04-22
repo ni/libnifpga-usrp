@@ -47,7 +47,7 @@ Session::Session(
     , boardFile(DeviceFile::getCdevPath(device, "board"),
           DeviceFile::WriteOnly,
           alreadyErrnoMap)
-    , resetFile(device, "nirio_reset_vi")
+    , resetFile(device, "reset_vi")
     , baseAddressOnDevice(bitfile.getBaseAddressOnDevice())
 {
     alreadyDownloaded = false;
@@ -99,6 +99,7 @@ void Session::close(const bool resetIfLastSession)
     if (resetIfLastSession) {
         // "2" means "only if there aren't multiple sessions opened"
         try {
+            // TODO auchter: see comments in kernel driver about this
             resetFile.write(2);
         } catch (const FpgaBusyFpgaInterfaceCApiException&) {
             // we ignore when reset didn't happen due to multiple sessions
@@ -109,12 +110,12 @@ void Session::close(const bool resetIfLastSession)
 
 bool Session::isStarted() const
 {
-    return PersonalitySysfsFile(device, "nirio_vi_started").readBool();
+    return SysfsFile(device, "vi_started").readBool();
 }
 
 bool Session::isFinished() const
 {
-    return PersonalitySysfsFile(device, "nirio_vi_finished").readBool();
+    return SysfsFile(device, "vi_finished").readBool();
 }
 
 bool Session::isRunning() const
@@ -136,7 +137,7 @@ bool Session::run() const
     bool alreadyRunning = false;
 
     try {
-        PersonalitySysfsFile(device, "nirio_run_vi", alreadyErrnoMap).write(true);
+        SysfsFile(device, "run_vi", alreadyErrnoMap).write(true);
     } catch (const FpgaAlreadyRunningException&) {
         alreadyRunning = true;
     }
@@ -147,7 +148,7 @@ bool Session::run() const
 void Session::abort() const
 {
     // tell the kernel to abort
-    PersonalitySysfsFile(device, "nirio_abort_vi").write(true);
+    SysfsFile(device, "abort_vi").write(true);
     // kernel will stop all FIFOs, so we need to remember that it did
     setStoppedAllFifos();
 }
@@ -272,16 +273,15 @@ void Session::findResource(const char* const name,
 
 void Session::acknowledgeIrqs(uint32_t irqs)
 {
-    PersonalitySysfsFile(device, "nirio_irq_status").write(irqs);
+    SysfsFile(device, "irq_status").write(irqs);
 }
 
 void Session::waitOnIrqs(
     uint32_t irqs, uint32_t timeout, uint32_t* const irqsAsserted, bool* timedOut)
 {
-    PersonalitySysfsFile(device, "nirio_irq_mask").write(irqs);
+    SysfsFile(device, "irq_mask").write(irqs);
     DeviceFile irqStatus(
-        std::string("/sys/class/nirio/") + device + "!personality/nirio_irq_status",
-        DeviceFile::ReadOnly);
+        std::string("/sys/class/nirio/") + device + "/irq_status", DeviceFile::ReadOnly);
 
     auto asserted = readU32Hex(irqStatus);
 

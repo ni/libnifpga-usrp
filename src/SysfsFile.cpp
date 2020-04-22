@@ -154,13 +154,4 @@ FifoSysfsFile::FifoSysfsFile(const std::string& device,
     path = joinPath(path, temp.str(), attribute);
 }
 
-PersonalitySysfsFile::PersonalitySysfsFile(
-    const std::string& device, const std::string& attribute, const ErrnoMap& errnoMap)
-    : SysfsFile(baseSysfsPath, errnoMap)
-{
-    std::ostringstream temp;
-    temp << device << '!' << "personality";
-    path = joinPath(path, temp.str(), attribute);
-}
-
 } // namespace nirio
