@@ -405,9 +405,6 @@ size_t Fifo::pollUntilAvailable(
         //       have clued us in that someone reset or otherwise stopped the FIFO
         //       behind our back. So for now, we're ignoring this potential
         //       optimization unless we deem it necessary in the future.
-        //
-        // TODO: refactor SysfsFile so each read/write doesn't open, which
-        //       allocates
         getElementsAvailable(available);
         // only update them if we got a good value
         if (elementsAvailable)
