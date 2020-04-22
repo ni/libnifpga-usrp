@@ -69,47 +69,6 @@ public:
 
 } // unnamed namespace
 
-class FifoBufferNull : public FifoBufferInterface
-{
-public:
-    size_t getSize() const
-    {
-        return 0;
-    }
-    void* getBuffer() const
-    {
-        return NULL;
-    }
-};
-
-class FifoBufferHost : public FifoBufferInterface
-{
-public:
-    // page-align both because CHInCh-based devices perform better when using
-    // whole pages, but more importantly because when using bounce-buffering,
-    // whole pages will be buffered and we don't want to clobber other memory
-    //
-    // NOTE: can't use aligned_alloc until C11:
-    //    http://man7.org/linux/man-pages/man3/posix_memalign.3.html
-    explicit FifoBufferHost(size_t size) : buffer(valloc(size), free), size(size)
-    {
-        if (!buffer)
-            NIRIO_THROW(MemoryFullException());
-    }
-
-    size_t getSize() const
-    {
-        return size;
-    }
-    void* getBuffer() const
-    {
-        return buffer.get();
-    }
-
-private:
-    std::unique_ptr<void, void (*)(void*)> buffer;
-    size_t size;
-};
 
 Fifo::Fifo(const FifoInfo& fifo, const std::string& device)
     : FifoInfo(fifo)
@@ -169,16 +128,13 @@ void Fifo::ensureConfiguredAndStarted()
 }
 
 // precondition: lock is locked
-void Fifo::setBuffer(const FifoBufferInterface& fifoBuf)
+void Fifo::setBuffer()
 {
     // if there's not an error, we should have a file
     assert(file);
-    // write the size and buffer to configure the FIFO
-    auto info = fifoBuf.getInfo();
-    file->ioctl(NIRIO_IOC_FIFO_SET_BUF, &info);
 
     // if we have a new buffer, we start from the beginning of it
-    buffer   = fifoBuf.getBuffer();
+    buffer   = NULL;
     next     = 0;
     acquired = 0;
 }
@@ -202,7 +158,7 @@ void Fifo::configure(const size_t requestedDepth, size_t* const actualDepth)
         // if the sizes are the same, the depths should be
         assert(localActualDepth == depth);
         // if a file is open, we should have a buffer
-        assert(buffer);
+        // assert(buffer);
     }
     // otherwise, we've got work to do
     else {
@@ -212,20 +168,19 @@ void Fifo::configure(const size_t requestedDepth, size_t* const actualDepth)
         //
         // NOTE: we reuse the opened file so no one can steal it out from under us
         if (file) {
-            setBuffer(FifoBufferNull());
+            setBuffer();
         }
         // otherwise, open the cdev file for the first time
         else
             file.reset(new DeviceFile(DeviceFile::getFifoCdevPath(device, number),
                 hostToTarget ? DeviceFile::WriteOnly : DeviceFile::ReadOnly,
                 errnoMap));
-        fifoBuffer.reset(new FifoBufferHost(actualSize));
 
         // set the buffer in the kernel
-        setBuffer(*fifoBuffer);
+        setBuffer();
         // if everything's okay, remember the new sizes
         depth = localActualDepth;
-        size  = fifoBuffer->getSize();
+        size  = 0; // fifoBuffer->getSize();
     }
 
     if (actualDepth)
@@ -282,7 +237,6 @@ void Fifo::setStopped()
     //       FIFO by closing the file
     if (file) {
         file.reset();
-        fifoBuffer.reset();
         buffer = NULL;
         // mark it as stopped
         started = false;

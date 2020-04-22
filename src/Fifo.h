@@ -30,23 +30,6 @@
 
 namespace nirio {
 
-// TODO auchter: This needs to be reworked
-class FifoBufferInterface
-{
-public:
-    virtual ~FifoBufferInterface(){};
-
-    auto getInfo() const
-    {
-        ioctl_nirio_fifo_set_buf info;
-
-        return info;
-    }
-
-    virtual size_t getSize() const  = 0;
-    virtual void* getBuffer() const = 0;
-};
-
 /**
  * Represents an actual DMA FIFO of a currently-downloaded personality.
  */
@@ -103,7 +86,7 @@ private:
     void calculateDimensions(
         size_t requestedDepth, size_t& actualDepth, size_t& actualSize) const;
 
-    void setBuffer(const FifoBufferInterface&);
+    void setBuffer();
 
     void ensureConfigured();
 
@@ -125,7 +108,6 @@ private:
         size_t elementsRequested, uint32_t timeoutMs, size_t* elementsRemaining);
 
     mutable std::recursive_mutex lock; ///< Lock to serialize access.
-    std::unique_ptr<FifoBufferInterface> fifoBuffer;
     const std::string device; ///< Device, such as "RIO0".
     bool started; ///< Whether currently started.
     /// Number of bytes per element transferred between hardware and driver.
