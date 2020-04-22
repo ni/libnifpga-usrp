@@ -2740,24 +2740,6 @@ NiFpga_Status NiFpga_ReleaseFifoElements(
 NiFpga_Status NiFpga_GetPeerToPeerFifoEndpoint(
     NiFpga_Session session, NiFpgaEx_PeerToPeerFifo fifo, uint32_t* endpoint);
 
-/* Attributes to be queried with NiFpgaEx_GetAttribute. */
-typedef enum {
-    NiFpgaEx_AttributeString_ModelName    = 0,
-    NiFpgaEx_AttributeString_SerialNumber = 1
-} NiFpgaEx_AttributeString;
-
-/**
- * Queries a string attribute of a given device.
- *
- * @param resource RIO resource string of device to query ("RIO0")
- * @param attribute attribute to query
- * @param buffer output buffer to fill
- * @param size size in bytes of buffer to fill
- * @return result of the call
- */
-NiFpga_Status NiFpgaEx_GetAttributeString(
-    const char* resource, NiFpgaEx_AttributeString attribute, char* buffer, size_t size);
-
 /**
  * Clears the FPGA personality on a given device so that nothing is running.
  * An error will be returned if there are currently any sessions opened to this
@@ -2767,34 +2749,6 @@ NiFpga_Status NiFpgaEx_GetAttributeString(
  * @return result of the call
  */
 NiFpga_Status NiFpgaEx_ClearFpga(const char* resource);
-
-/* A device that was removed with NiFpgaEx_RemoveDevice. */
-typedef uintptr_t NiFpgaEx_RemovedDevice;
-
-/**
- * Temporarily removes a device from the PCI tree before it is rescanned with
- * NiFpgaEx_RescanDevice. This is only supported on NI 915x devices. An error
- * will be returned if there are currently any sessions opened to this device,
- * or if the calling process does not have sufficient permission for writing to
- * PCI hotplug sysfs attributes.
- *
- * @param resource RIO resource string of device to remove ("RIO0")
- * @param device outputs a removed device to be passed to NiFpgaEx_RescanDevice
- * @return result of the call
- */
-NiFpga_Status NiFpgaEx_RemoveDevice(const char* resource, NiFpgaEx_RemovedDevice* device);
-
-/**
- * Rescans a device into the PCI tree that was previously removed with
- * NiFpgaEx_RemoveDevice. Once successfully rescanned, a given device
- * cannot be rescanned until it is once again removed. An error will be
- * returned if the calling process does not have sufficient permission for
- * writing to PCI hotplug sysfs attributes.
- *
- * @param device device that was removed with NiFpgaEx_RemoveDevice
- * @return result of the call
- */
-NiFpga_Status NiFpgaEx_RescanDevice(NiFpgaEx_RemovedDevice* device);
 
 /**
  * Configures a FIFO to DMA data directly to/from an NVIDIA GPU buffer using

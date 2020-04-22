@@ -30,9 +30,6 @@ NiFpgaEx_ClearFpga
 NiFpgaEx_ConfigureFifoGpu
 NiFpga_ConfigureFifoGpu
 NiFpgaEx_FindResource
-NiFpgaEx_GetAttributeString
-NiFpgaEx_RemoveDevice
-NiFpgaEx_RescanDevice
 NiFpga_FindFifoPrivate
 NiFpga_FindRegisterPrivate
 NiFpga_GetBitfileSignature

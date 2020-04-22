@@ -16,7 +16,6 @@
 
 #include "NiFpga.h"
 #include "Common.h"
-#include "DeviceInfo.h"
 #include "ErrnoMap.h"
 #include "Exception.h"
 #include "NiFpgaPrivate.h"
@@ -722,43 +721,6 @@ NiFpga_Status NiFpga_GetPeerToPeerFifoEndpoint(const NiFpga_Session session,
     return NiFpga_Status_FeatureNotSupported;
 }
 
-NiFpga_Status NiFpgaEx_GetAttributeString(const char* const resource,
-    const NiFpgaEx_AttributeString attribute,
-    char* const buffer,
-    const size_t size)
-{
-    // validate parameters
-    if (!size)
-        return NiFpga_Status_InvalidParameter;
-    if (buffer)
-        buffer[0] = '\0';
-    if (!resource || !buffer)
-        return NiFpga_Status_InvalidParameter;
-    // wrap all code that might throw in a big safety net
-    Status status;
-    try {
-        std::string result;
-        switch (attribute) {
-            case NiFpgaEx_AttributeString_ModelName:
-                result = getModelName(resource);
-                break;
-            case NiFpgaEx_AttributeString_SerialNumber:
-                result = getSerialNumber(resource);
-                break;
-            default:
-                return status.merge(NiFpga_Status_InvalidParameter);
-        }
-        // ensure there's enough room for it
-        if (result.length() >= size)
-            status.merge(NiFpga_Status_BufferInvalidSize);
-        // copy entire contents and then add a null character
-        if (status.isNotError())
-            buffer[result.copy(buffer, size)] = '\0';
-    }
-    CATCH_ALL_AND_MERGE_STATUS(status)
-    return status;
-}
-
 // Macro to early return if there are any open sessions, and prevent any other
 // sessions from opening while still in enclosing code block. Each session
 // grabs a reader lock to prevent shenanigans while any sessions are opened, so
@@ -812,87 +774,6 @@ public:
 } hotplugErrnoMap;
 
 } // unnamed namespace
-
-NiFpga_Status NiFpgaEx_RemoveDevice(
-    const char* const resource, NiFpgaEx_RemovedDevice* const device)
-{
-    // validate parameters
-    if (device)
-        *device = 0;
-    if (!resource || !device)
-        return NiFpga_Status_InvalidParameter;
-    std::unique_ptr<char, void (*)(void*)> canonical(NULL, &free);
-    // wrap all code that might throw in a big safety net
-    Status status;
-    try {
-        // early return if any sessions are opened, and prevent any from opening
-        NO_OPEN_SESSIONS_GUARD
-        // ensure it's a supported removable NI 915x device
-        const auto modelName = getModelName(resource);
-        if (modelName.find("NI 915") != 0)
-            return status.merge(NiFpga_Status_FeatureNotSupported);
-        // get the absolute, canonical (no symlinks) path to this device
-        canonical.reset(realpath(SysfsFile::getDevicePath(resource).c_str(), NULL));
-        if (!canonical)
-            return status.merge(NiFpga_Status_ResourceNotFound);
-
-        // PCI "hotplug" removal of the upstream device. We take the third parent
-        // to go from (1) the bus interface chip (DustMITE-NT) via PCI to a
-        // bridge, then (2) over PCIe to a switch, and then finally (3) over MXIe
-        // to whatever switch it's connected to.
-        const auto remove = joinPath(canonical.get(), "..", "..", "..", "remove");
-        SysfsFile(remove, hotplugErrnoMap).write(true);
-        // Wait a while for the device to go away. This is necessary because older
-        // kernels had asynchronous removal. If we didn't wait, someone could
-        // remove (scheduled for later), rescan (no-op because it hasn't been
-        // removed yet), and then the remove finally occurs. Subsequent calls to
-        // NiFpga_Open would error even though it wouldn't look like they should.
-        // Note that this isn't hypothetical; it actually happened in testing.
-        // See here for more information: http://lwn.net/Articles/580141/
-        if (!SysfsFile(canonical.get()).waitUntilDoesNotExist(5000))
-            NIRIO_THROW(SoftwareFaultException());
-    }
-    CATCH_ALL_AND_MERGE_STATUS(status)
-    // if everything worked, relinquish control of malloc'ed device path
-    // to output parameter for use in NiFpgaEx_RemoveDevice
-    if (status.isNotError())
-        *device = reinterpret_cast<NiFpgaEx_RemovedDevice>(canonical.release());
-    return status;
-}
-
-NiFpga_Status NiFpgaEx_RescanDevice(NiFpgaEx_RemovedDevice* const device)
-{
-    // validate parameters
-    if (!device || !*device)
-        return NiFpga_Status_InvalidParameter;
-    // get the original device path
-    const auto canonical = reinterpret_cast<char*>(*device);
-    // wrap all code that might throw in a big safety net
-    Status status;
-    try {
-        // PCI "hotplug" rescan the _parent_ of the upstream device we previously
-        // removed in NiFpgaEx_RemoveDevice
-        const auto upstreamParent = joinPath(canonical, "..", "..", "..", "..");
-        SysfsFile(joinPath(upstreamParent, "rescan"), hotplugErrnoMap).write(true);
-        // Try to wait a while for the device to come back, but don't error if we
-        // don't see that happen. This is because it's possible another thread
-        // removed the device after we rescanned but before we were able to
-        // notice. The only way to prevent this would be to make remove and rescan
-        // mutually exclusive (by grabbing the same file lock), but that would
-        // require knowing the resource string ("RIO0"), which would complicate
-        // the implementation of NiFpgaEx_RemovedDevice. Instead, we just wait for
-        // a while here and hope that it's enough time to make subsequent open
-        // calls successful. If not, NiFpga_Open will give an appropriate error.
-        SysfsFile(canonical).waitUntilExists(5000);
-    }
-    CATCH_ALL_AND_MERGE_STATUS(status)
-    // if everything worked, free the device path
-    if (status.isNotError()) {
-        free(canonical);
-        *device = 0;
-    }
-    return status;
-}
 
 NiFpga_Status NiFpga_FindRegisterPrivate(const NiFpga_Session session,
     const char* const registerName,

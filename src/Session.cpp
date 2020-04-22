@@ -13,7 +13,6 @@
  */
 
 #include "Session.h"
-#include "DeviceInfo.h"
 #include "ErrnoMap.h"
 #include "Exception.h"
 #include "NiFpga.h"
@@ -59,10 +58,13 @@ Session::Session(
     if (!fileLock.tryLockReader())
         NIRIO_THROW(InvalidResourceNameException());
 
+// TODO auchter: Should we check targetclass against anything?
+#if 0 
     // ensure the target class matches
     const auto modelName = getModelName(device);
     if (modelName != bitfile.getTargetClass())
         NIRIO_THROW(DeviceTypeMismatchException());
+#endif
 
     alreadyDownloaded = download();
 

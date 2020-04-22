@@ -44,7 +44,6 @@ valgrind: $(TARGETS)
 NIFPGA_OBJECTS := \
 	Bitfile.o \
 	DeviceFile.o \
-	DeviceInfo.o \
 	Fifo.o \
 	FifoInfo.o \
 	FileLock.o \
