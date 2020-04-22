@@ -27,7 +27,7 @@ CXXFLAGS += \
 	-I"../include" \
 	-Wold-style-cast \
 
-TARGETS := libNiFpga.so
+TARGETS := libNiFpga.so lvbitx2dtso
 
 .PHONY: release
 release: CXXFLAGS += -O2 -DNDEBUG
@@ -62,6 +62,9 @@ NIFPGA_OBJECTS := \
 libNiFpga.so: $(NIFPGA_OBJECTS) .libNiFpga.so.symalias .libNiFpga.so.map
 	@echo '  LD    ' $@
 	@$(CXX) -Wl,-soname,$@ -Wl,-z,defs -Wl,@.libNiFpga.so.symalias -Wl,--version-script=.libNiFpga.so.map -shared -pthread $(LDFLAGS) $(NIFPGA_OBJECTS) -o $@
+
+lvbitx2dtso: lvbitx2dtso.o Bitfile.o PersonalityBlob.o Type.o RegisterInfo.o FifoInfo.o ResourceInfo.o libb64/cdecode.o dtgen.o
+	$(CXX) -o $@ $^
 
 dependency = $(dir $1)$(patsubst %.o,.%.d,$(notdir $1))
 
