@@ -149,9 +149,6 @@ private:
 Fifo::Fifo(const FifoInfo& fifo, const std::string& device)
     : FifoInfo(fifo)
     , device(device)
-    , acquireRelease(
-          FifoSysfsFile(device, number, "nirio_supports_fifo_acquire_release", errnoMap)
-              .readBool())
     , started(false)
     , hardwareElementBytes(
           FifoSysfsFile(device, number, "nirio_element_bytes", errnoMap).readU32())
@@ -171,10 +168,6 @@ Fifo::Fifo(const FifoInfo& fifo, const std::string& device)
 {
     // calculate depth and size
     calculateDimensions(minimumDepth, depth, size, false /* gpu */);
-    // these should be mutually-exclusive
-    assert(acquireRelease
-           != FifoSysfsFile(device, number, "nirio_supports_fifo_read_write", errnoMap)
-                  .readBool());
 }
 
 Fifo::~Fifo() noexcept(true) {}
@@ -376,9 +369,6 @@ void Fifo::setStopped()
 
 void Fifo::release(const size_t elements)
 {
-    // not all FIFOs support the acquire/release interface
-    if (!acquireRelease)
-        NIRIO_THROW(FeatureNotSupportedException());
     // release of 0 elements should always succeed
     if (!elements)
         return;

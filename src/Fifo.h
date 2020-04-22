@@ -135,9 +135,6 @@ private:
     mutable std::recursive_mutex lock; ///< Lock to serialize access.
     std::unique_ptr<FifoBufferInterface> fifoBuffer;
     const std::string device; ///< Device, such as "RIO0".
-    /// Whether to use acquire and release instead of read and write. If
-    /// false, next and acquired members are unused.
-    const bool acquireRelease;
     bool started; ///< Whether currently started.
     /// Number of bytes per element transferred between hardware and driver.
     const size_t hardwareElementBytes;
@@ -187,9 +184,6 @@ void Fifo::acquire(typename T::CType*& elements,
     size_t& elementsAcquired,
     size_t* const elementsRemaining)
 {
-    // not all FIFOs support the acquire/release interface
-    if (!acquireRelease)
-        NIRIO_THROW(FeatureNotSupportedException());
     // ensure the type and direction are right
     if (T() != type || IsWrite != hostToTarget)
         NIRIO_THROW(InvalidParameterException());
@@ -244,8 +238,8 @@ void Fifo::readOrWrite(typename T::CType* data,
     }
 
     // We implement read/write in user-mode through acquire/release if possible
-    // for easier debugging. But if acquire/release isn't supported, as with
-    // MITE-based devices, we have to just read/write from the kernel.
+    // for easier debugging.
+    bool acquireRelease = true;
     if (acquireRelease) {
         acquireWithWait(elementsRequested, timeout, elementsRemaining);
 
