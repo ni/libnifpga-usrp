@@ -39,62 +39,6 @@ struct nirio_array
      */
 } __attribute__((__may_alias__));
 
-/* Use these for FIFO direction when writing personality blob */
-#define NIRIO_TARGET_TO_HOST 0
-#define NIRIO_HOST_TO_TARGET 1
-
-/**
- * struct nirio_fifo_info - FIFO info from personality
- * @channel: DMA channel number, from lvbitx
- * @offset: offset into FPGA address space of FPGA DMA registers, from lvbitx
- * @direction: FIFO direction, from lvbitx
- *	One of either:
- *		NIRIO_TARGET_TO_HOST
- *		NIRIO_HOST_TO_TARGET
- * @bits_per_elem: data type bits per element, from lvbitx. Bools would be a 1.
- *	The FPGA driver sets this before fifo_init, for board drivers to read.
- */
-struct nirio_fifo_info
-{
-    __u32 channel;
-    __u32 control_set;
-    __u32 offset;
-    __u32 direction;
-    __u32 bits_per_elem;
-};
-
-#define NIRIO_PERSONALITY_FIFOS_SUPPORT_CLEAR (1u << 0)
-#define NIRIO_PERSONALITY_FIFOS_SUPPORT_BRIDGE_FLUSH (1u << 1)
-#define NIRIO_PERSONALITY_RESET_AUTO_CLEARS (1u << 2)
-#define NIRIO_PERSONALITY_RUN_WHEN_LOADED (1u << 3)
-
-#define NIRIO_DOWNLOAD_FORCE (1u << 0)
-/*
- * struct nirio_personality_info: personality info from lvbitx
- * NOTE: This defines the binary format of the personality blob; do not change
- * this without making corresponding changes to usermode.
- * @signature: signature of this personality
- * @num_fifos: number of FIFOs in this personality
- * @fifo: metadata for each FIFO in the personality
- */
-struct nirio_personality_info
-{
-    __u32 download_flags;
-    __u32 personality_flags;
-    __u8 signature[32];
-    __u32 num_fifos;
-    struct nirio_fifo_info fifo[];
-};
-
-/**
- * The type of DMA buffer memory passed when setting a FIFO buffer
- */
-enum memory_type {
-    MEMORY_TYPE_USER   = 0, /* normal user-allocated buffer */
-    MEMORY_TYPE_NVIDIA = 1, /* GPU memory allocated from NVIDIA API */
-    MEMORY_TYPE_MAX
-};
-
 /**
  * struct nirio_fifo_set_buffer_info - info to set a FIFO DMA buffer
  * @bytes: size in bytes of buffer
