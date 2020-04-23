@@ -43,7 +43,7 @@ Session::Session(
     const std::string& bitfilePath, const std::string& device, bool& alreadyDownloaded)
     : bitfile(bitfilePath)
     , device(device)
-    , boardFile(DeviceFile::getCdevPath(device), DeviceFile::WriteOnly, alreadyErrnoMap)
+    , boardFile(DeviceFile::getCdevPath(device), DeviceFile::ReadWrite, alreadyErrnoMap)
     , resetFile(device, "reset_vi")
     , baseAddressOnDevice(bitfile.getBaseAddressOnDevice())
 {
