@@ -80,8 +80,6 @@ public:
      */
     bool waitUntilDoesNotExist(size_t milliseconds) const;
 
-    static std::string getDevicePath(const std::string& device);
-
 protected:
     std::string path;
 

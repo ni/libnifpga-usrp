@@ -31,18 +31,13 @@ const std::string baseSysfsPath("/sys/class/nirio");
 
 std::string getSubdevicePath(const std::string& device, const std::string& subdevice)
 {
-    return joinPath(baseSysfsPath, (device + '!' + subdevice));
+    return joinPath(baseSysfsPath, (device + subdevice));
 }
 } // unnamed namespace
 
-std::string SysfsFile::getDevicePath(const std::string& device)
-{
-    return joinPath(baseSysfsPath, (device + '!' + "board"), "device");
-}
-
 SysfsFile::SysfsFile(
     const std::string& device, const std::string& attribute, const ErrnoMap& errnoMap)
-    : path(joinPath(getSubdevicePath(device, "board"), attribute)), errnoMap(errnoMap)
+    : path(joinPath(baseSysfsPath, device, attribute)), errnoMap(errnoMap)
 {
 }
 
