@@ -18,7 +18,6 @@
 #include "DeviceFile.h"
 #include "Exception.h"
 #include "Fifo.h"
-#include "FileLock.h"
 #include "PackedArray.h"
 #include "Type.h"
 #include <linux/nirio.h>
@@ -173,7 +172,6 @@ private:
 
     Bitfile bitfile;
     const std::string device;
-    FileLock fileLock;
     DeviceFile boardFile;
     const SysfsFile resetFile;
     const uint32_t baseAddressOnDevice;

@@ -43,18 +43,11 @@ Session::Session(
     const std::string& bitfilePath, const std::string& device, bool& alreadyDownloaded)
     : bitfile(bitfilePath)
     , device(device)
-    , fileLock(DeviceFile::getCdevPath(device))
     , boardFile(DeviceFile::getCdevPath(device), DeviceFile::WriteOnly, alreadyErrnoMap)
     , resetFile(device, "reset_vi")
     , baseAddressOnDevice(bitfile.getBaseAddressOnDevice())
 {
     alreadyDownloaded = false;
-    // Each session grabs a reader lock to prevent NiFpgaEx_RemoveDevice from
-    // removing while any sessions are opened. If we couldn't get the reader,
-    // there must be a removal in progress, in which case we error like it's
-    // already removed.
-    if (!fileLock.tryLockReader())
-        NIRIO_THROW(InvalidResourceNameException());
 
 // TODO auchter: This should at least validate the bitfile signature
 // against the sysfs file that contains the signature.

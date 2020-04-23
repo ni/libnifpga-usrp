@@ -46,7 +46,6 @@ NIFPGA_OBJECTS := \
 	DeviceFile.o \
 	Fifo.o \
 	FifoInfo.o \
-	FileLock.o \
 	NiFpga.o \
 	RegisterInfo.o \
 	ResourceInfo.o \
