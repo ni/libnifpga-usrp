@@ -78,7 +78,7 @@ public:
 
         do {
             handle = static_cast<NiFpga_Session>(rand()) & ~0x00002000U;
-        } while (sessionMap.find(handle) != sessionMap.end());
+        } while (!handle || sessionMap.find(handle) != sessionMap.end());
 
         sessionMap[handle] = std::move(session);
         return handle;
