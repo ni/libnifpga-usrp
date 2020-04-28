@@ -42,8 +42,6 @@ public:
 
     const Bitfile& getBitfile() const;
 
-    const std::string& getDevice() const;
-
     void close(bool resetIfLastSession = false);
 
     bool isStarted() const;

@@ -81,11 +81,6 @@ const Bitfile& Session::getBitfile() const
     return bitfile;
 }
 
-const std::string& Session::getDevice() const
-{
-    return device;
-}
-
 // NOTE: we close even on incoming bad status to keep close semantics
 void Session::close(const bool resetIfLastSession)
 {

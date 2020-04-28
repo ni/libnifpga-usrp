@@ -32,7 +32,6 @@ NiFpga_FindRegisterPrivate
 NiFpga_GetBitfileSignature
 NiFpga_GetPeerToPeerFifoEndpoint
 NiFpga_Open
-NiFpgaPrivate_GetDeviceName
 NiFpga_ReadArrayBool
 NiFpga_ReadArrayDbl
 NiFpga_ReadArrayI16

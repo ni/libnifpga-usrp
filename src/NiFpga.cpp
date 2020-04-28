@@ -18,7 +18,6 @@
 #include "Common.h"
 #include "ErrnoMap.h"
 #include "Exception.h"
-#include "NiFpgaPrivate.h"
 #include "Session.h"
 #include "Type.h"
 #include <sched.h> // sched_yield
@@ -766,37 +765,6 @@ NiFpga_Status NiFpga_GetBitfileSignature(
             signature + 3);
 
         *signatureSize = 4;
-    }
-    CATCH_ALL_AND_MERGE_STATUS(status)
-    return status;
-}
-
-/**
- * Gets the device name from a session.
- *
- * This function is not externally supported and therefore not in NiFpga.h.
- *
- * @param session handle to a currently open session
- * @param buffer output buffer to fill
- * @param size size in bytes of buffer to fill
- * @return result of the call
- */
-NiFpga_Status NiFpgaPrivate_GetDeviceName(
-    const NiFpga_Session session, char* const buffer, const size_t size)
-{
-    // validate parameters
-    if (!session || !buffer)
-        return NiFpga_Status_InvalidParameter;
-    // wrap all code that might throw in a big safety net
-    Status status;
-    try {
-        auto& sessionObject  = getSession(session);
-        const auto& resource = sessionObject.getDevice();
-        // ensure there's enough room for it
-        if (resource.length() >= size)
-            return status.merge(NiFpga_Status_BufferInvalidSize);
-        // copy entire contents and then add a null character
-        buffer[resource.copy(buffer, size)] = '\0';
     }
     CATCH_ALL_AND_MERGE_STATUS(status)
     return status;
