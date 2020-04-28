@@ -41,8 +41,8 @@ add_executable(lvbitx2dtso
 
 add_custom_command(
     OUTPUT libnifpga.so.symalias
-    DEPENDS src/libNiFpga.exports
-    COMMAND sed -n "s/NiFpga_\\(\\w\\+\\)/-defsym=NiFpgaDll_\\1=&/p" ${CMAKE_SOURCE_DIR}/src/libNiFpga.exports > libnifpga.so.symalias VERBATIM
+    DEPENDS src/libnifpga.exports
+    COMMAND sed -n "s/NiFpga_\\(\\w\\+\\)/-defsym=NiFpgaDll_\\1=&/p" ${CMAKE_SOURCE_DIR}/src/libnifpga.exports > libnifpga.so.symalias VERBATIM
     COMMENT "Generate compatibility aliases"
 )
 add_custom_target(nifpga_symalias DEPENDS libnifpga.so.symalias)
@@ -52,10 +52,10 @@ target_link_options(nifpga PRIVATE "LINKER:--version-script=libnifpga.so.map")
 
 add_custom_command(
     OUTPUT libnifpga.so.map
-    DEPENDS src/libNiFpga.exports
+    DEPENDS src/libnifpga.exports
     COMMAND echo "{" > libnifpga.so.map
 	COMMAND echo "    global:" >> libnifpga.so.map
-    COMMAND sed "/^NiFpga_/p; s/NiFpga_/NiFpgaDll_/" < ${CMAKE_SOURCE_DIR}/src/libNiFpga.exports | sed "s/.*/        &;/" >> libnifpga.so.map VERBATIM
+    COMMAND sed "/^NiFpga_/p; s/NiFpga_/NiFpgaDll_/" < ${CMAKE_SOURCE_DIR}/src/libnifpga.exports | sed "s/.*/        &;/" >> libnifpga.so.map VERBATIM
 	COMMAND echo "    local:" >> libnifpga.so.map
 	COMMAND echo "        *;" >> libnifpga.so.map
 	COMMAND echo "};" >> libnifpga.so.map
