@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.4.0)
 
 project(nifpga)
+enable_testing()
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -69,3 +70,9 @@ install(TARGETS nifpga DESTINATION lib)
 install(TARGETS lvbitx2dtso DESTINATION bin)
 file(GLOB HEADERS include/*.h)
 install(FILES ${HEADERS} DESTINATION include)
+
+add_executable(test_packedarray
+    tests/test_PackedArray.cpp
+)
+
+add_test(NAME test_packedarray COMMAND test_packedarray)

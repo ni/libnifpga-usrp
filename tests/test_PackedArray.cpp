@@ -1,4 +1,4 @@
-#include "../PackedArray.h"
+#include "../src/PackedArray.h"
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
