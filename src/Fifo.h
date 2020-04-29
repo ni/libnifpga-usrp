@@ -21,7 +21,7 @@
 #include "SysfsFile.h"
 #include "Timer.h"
 #include "valgrind.h"
-#include <linux/nirio.h>
+#include <misc/nirio.h>
 #include <algorithm> // std::min
 #include <cassert> // assert
 #include <cstring>

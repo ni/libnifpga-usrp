@@ -20,7 +20,7 @@
 #include "Fifo.h"
 #include "PackedArray.h"
 #include "Type.h"
-#include <linux/nirio.h>
+#include <misc/nirio.h>
 #include <type_traits>
 #include <cassert> // assert
 #include <cstring> // memcpy
