@@ -93,14 +93,6 @@ Fifo::~Fifo() noexcept(true) {}
 void Fifo::calculateDimensions(
     const size_t requestedDepth, size_t& actualDepth, size_t& actualSize) const
 {
-    // page-round both because CHInCh-based devices perform better when using
-    // whole pages, but more importantly because when using bounce-buffering,
-    // whole pages will be buffered and we don't want to clobber other memory
-    //
-    // NOTE: this differs from the closed-source driver in that MITE-based
-    //       devices with coerce to larger depths, but this is fine since it
-    //       won't perform any worse, and won't affect applications regarding
-    //       buffer wrap-around since they don't support acquire/release anyway
     actualSize  = pageRound(requestedDepth * hardwareElementBytes);
     actualDepth = actualSize / hardwareElementBytes;
 }
