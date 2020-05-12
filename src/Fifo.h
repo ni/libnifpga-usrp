@@ -96,10 +96,6 @@ private:
 
     void ensureConfiguredAndStarted();
 
-    /// Polls (from usermode) until all elements are available.
-    size_t pollUntilAvailable(
-        size_t elementsRequested, size_t* elementsAvailable, const Timer& timer);
-
     /// Get elements available.
     /// Handles aborted transfers by restarting FIFO.
     void getElementsAvailable(size_t& elementsAvailable);
@@ -206,63 +202,36 @@ void Fifo::readOrWrite(typename T::CType* data,
         return;
     }
 
-    // We implement read/write in user-mode through acquire/release if possible
-    // for easier debugging.
-    const bool acquireRelease = false;
-    if (acquireRelease) {
-        acquireWithWait(elementsRequested, timeout, elementsRemaining);
+    acquireWithWait(elementsRequested, timeout, elementsRemaining);
 
-        // loop until we've copied the entire amount we just acquired
-        size_t iterations = 0;
-        do {
-            // bookkeep the acquire (possibly a subset of total amount)
-            typename T::CType* elements;
-            const size_t elementsAcquired = std::min(elementsRequested, depth - next);
-            doContiguousAcquireBookkeeping<T>(elements, elementsAcquired);
-            // copy between the acquired region and the user's buffer
-            const auto bytes = elementsAcquired * T::elementBytes;
-            if (IsWrite)
-                memcpy(elements, data, bytes);
-            else
-                memcpy(data, elements, bytes);
-            // release the region
-            //
-            // NOTE: If release somehow failed, we'll be left in a weird state
-            //       where elements are acquired but cannot be released, and
-            //       potentially some elements were copied but not all. However,
-            //       there's not much else we can do other than err out.
-            release(elementsAcquired);
-            // account for how many we got
-            data += elementsAcquired;
-            elementsRequested -= elementsAcquired;
-            iterations++;
-        } while (elementsRequested);
-        // since it's a contiguous buffer and you can't ask for larger than
-        // depth, there can only be one wrap-around case, thus only 2 iterations
-        assert(iterations <= 2);
-    } else {
-        const Timer timer(timeout);
-        // wait for enough elements (this sets elementsRemaining if non-NULL)
-        const auto available =
-            pollUntilAvailable(elementsRequested, elementsRemaining, timer);
-        // we either got what we wanted, or erred
-        UNUSED(available);
-        assert(available >= elementsRequested);
-        // early return if they were just querying
-        if (!elementsRequested)
-            return;
-
-        const auto bytes = elementsRequested * T::elementBytes;
-        // read/write depending upon direction
+    // loop until we've copied the entire amount we just acquired
+    size_t iterations = 0;
+    do {
+        // bookkeep the acquire (possibly a subset of total amount)
+        typename T::CType* elements;
+        const size_t elementsAcquired = std::min(elementsRequested, depth - next);
+        doContiguousAcquireBookkeeping<T>(elements, elementsAcquired);
+        // copy between the acquired region and the user's buffer
+        const auto bytes = elementsAcquired * T::elementBytes;
         if (IsWrite)
-            file->write(data, bytes);
+            memcpy(elements, data, bytes);
         else
-            file->read(data, bytes);
-
-        // there are now less remaining than pollUntilAvailable found
-        if (elementsRemaining)
-            *elementsRemaining -= elementsRequested;
-    }
+            memcpy(data, elements, bytes);
+        // release the region
+        //
+        // NOTE: If release somehow failed, we'll be left in a weird state
+        //       where elements are acquired but cannot be released, and
+        //       potentially some elements were copied but not all. However,
+        //       there's not much else we can do other than err out.
+        release(elementsAcquired);
+        // account for how many we got
+        data += elementsAcquired;
+        elementsRequested -= elementsAcquired;
+        iterations++;
+    } while (elementsRequested);
+    // since it's a contiguous buffer and you can't ask for larger than
+    // depth, there can only be one wrap-around case, thus only 2 iterations
+    assert(iterations <= 2);
 }
 
 template <typename T>

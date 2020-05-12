@@ -348,47 +348,4 @@ void Fifo::getElementsAvailable(size_t& elementsAvailable)
     elementsAvailable = available;
 }
 
-// precondition: lock is locked
-// precondition: FIFO is configured and started, or there's an error
-// postcondition: elementsAvailable was set if non-NULL and no error
-// postcondition: returns >= elementsRequested, or there's an error
-size_t Fifo::pollUntilAvailable(
-    const size_t elementsRequested, size_t* const elementsAvailable, const Timer& timer)
-{
-    assert(file && started);
-    // loop waiting for enough elements
-    size_t available = 0;
-    do {
-        // check whether we've timed out before checking available so that we
-        // ensure there was "one last chance" to acquire in the case where there
-        // was a significant thread switch
-        const auto timedOut = timer.isTimedOut();
-        // remember elements available
-        //
-        // TODO: We could consider remembering available in a member so that we
-        //       don't don't have to ask kernel to ask the hardware when we know
-        //       there should still be enough remaining. However, if they passed a
-        //       non-NULL elementsAvailable, they likely want the most up-to-date
-        //       value, so we'd have to do it anyway. In the case where they don't
-        //       care about elementsAvailable we could skip asking the kernel, but
-        //       then we'd have to copy the TransferAborted restart code below
-        //       at the actual acquire call, since this available check would not
-        //       have clued us in that someone reset or otherwise stopped the FIFO
-        //       behind our back. So for now, we're ignoring this potential
-        //       optimization unless we deem it necessary in the future.
-        getElementsAvailable(available);
-        // only update them if we got a good value
-        if (elementsAvailable)
-            *elementsAvailable = available;
-        // early break if enough were available, so FifoTimeout isn't set
-        if (available >= elementsRequested)
-            break;
-        // check if we've need to set the timeout error
-        if (timedOut)
-            NIRIO_THROW(FifoTimeoutException());
-    } while (true);
-    // return whatever the last value was, even on error
-    return available;
-}
-
 } // namespace nirio
