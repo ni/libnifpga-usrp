@@ -16,6 +16,7 @@
 
 #include "Common.h"
 #include "DeviceFile.h"
+#include "DmaBuf.h"
 #include "Exception.h"
 #include "FifoInfo.h"
 #include "SysfsFile.h"
@@ -87,6 +88,9 @@ private:
         size_t requestedDepth, size_t& actualDepth, size_t& actualSize) const;
 
     void setBuffer();
+    void unsetBuffer();
+
+    void setBufferFd(int fd);
 
     void ensureConfigured();
 
@@ -118,6 +122,7 @@ private:
     size_t acquired; ///< Current number acquired.
     size_t next; ///< Next element to be acquired.
     std::unique_ptr<DeviceFile> file; ///< FIFO character device file.
+    std::unique_ptr<DmaBuf> dmaBuf;
 
     Fifo(const Fifo&) = delete;
     Fifo& operator=(const Fifo&) = delete;

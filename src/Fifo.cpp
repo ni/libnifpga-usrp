@@ -69,7 +69,6 @@ public:
 
 } // unnamed namespace
 
-
 Fifo::Fifo(const FifoInfo& fifo, const std::string& device)
     : FifoInfo(fifo)
     , device(device)
@@ -125,10 +124,30 @@ void Fifo::setBuffer()
     // if there's not an error, we should have a file
     assert(file);
 
+    setBufferFd(dmaBuf->getDescriptor());
+
     // if we have a new buffer, we start from the beginning of it
+    buffer   = const_cast<void*>(dmaBuf->getPointer());
+    next     = 0;
+    acquired = 0;
+}
+
+void Fifo::unsetBuffer()
+{
+    assert(file);
+
+    setBufferFd(0);
+
     buffer   = NULL;
     next     = 0;
     acquired = 0;
+}
+
+void Fifo::setBufferFd(int fd)
+{
+    struct ioctl_nirio_fifo_set_buf arg;
+    arg.fd = fd;
+    file->ioctl(NIRIO_IOC_FIFO_SET_BUF, &arg);
 }
 
 void Fifo::configure(const size_t requestedDepth, size_t* const actualDepth)
@@ -160,7 +179,7 @@ void Fifo::configure(const size_t requestedDepth, size_t* const actualDepth)
         //
         // NOTE: we reuse the opened file so no one can steal it out from under us
         if (file) {
-            setBuffer();
+            unsetBuffer();
         }
         // otherwise, open the cdev file for the first time
         else
@@ -168,6 +187,7 @@ void Fifo::configure(const size_t requestedDepth, size_t* const actualDepth)
                 hostToTarget ? DeviceFile::WriteOnly : DeviceFile::ReadOnly,
                 errnoMap));
 
+        dmaBuf.reset(DmaBuf::allocate(actualSize, hostToTarget, "system"));
         // set the buffer in the kernel
         setBuffer();
         // if everything's okay, remember the new sizes
