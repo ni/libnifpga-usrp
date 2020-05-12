@@ -150,7 +150,7 @@ void DeviceFile::ioctl(const unsigned long int request, void* const buffer) cons
         errnoMap.throwErrno(errno);
 }
 
-void DeviceFile::mapMemory(const size_t size)
+volatile void* DeviceFile::mapMemory(const size_t size)
 {
     // file must be open and not mapped
     if (mapped)
@@ -164,6 +164,8 @@ void DeviceFile::mapMemory(const size_t size)
         mappedSize = size;
     else
         errnoMap.throwErrno(errno);
+
+    return mapped;
 }
 
 void DeviceFile::unmapMemory()

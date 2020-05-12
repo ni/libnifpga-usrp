@@ -51,7 +51,7 @@ public:
 
     void ioctl(unsigned long int request, void* buffer = NULL) const;
 
-    void mapMemory(const size_t size);
+    volatile void* mapMemory(const size_t size);
 
     void unmapMemory();
 
