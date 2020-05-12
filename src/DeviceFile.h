@@ -36,6 +36,9 @@ public:
         Access access,
         const ErrnoMap& errnoMap = ErrnoMap::instance);
 
+    explicit DeviceFile(
+        int fd, const Access access, const ErrnoMap& errnoMap = ErrnoMap::instance);
+
     ~DeviceFile();
 
     int getDescriptor() const;

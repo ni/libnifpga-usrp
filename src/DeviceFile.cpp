@@ -86,6 +86,11 @@ DeviceFile::DeviceFile(
         errnoMap.throwErrno(errno);
 }
 
+DeviceFile::DeviceFile(int fd, const Access access, const ErrnoMap& errnoMap)
+    : access(access), descriptor(fd), mapped(NULL), mappedSize(0), errnoMap(errnoMap)
+{
+}
+
 DeviceFile::~DeviceFile()
 {
     // unmap if necessary
