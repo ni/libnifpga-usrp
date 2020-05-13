@@ -269,6 +269,9 @@ void Fifo::release(const size_t elements)
     // they shouldn't release more than they have
     if (elements > acquired)
         NIRIO_THROW(BadReadWriteCountException());
+
+    dmaBuf->endCpuAccess();
+
     // just pass it on, assuming kernel will error if wrong
     try {
         uint64_t elementsU64 = elements;
@@ -319,6 +322,8 @@ void Fifo::acquireWithWait(const size_t elementsRequested,
         start();
         file->ioctl(NIRIO_IOC_FIFO_ACQUIRE, &fifo_acq);
     }
+
+    dmaBuf->beginCpuAccess();
 
     if (elementsRemaining)
         *elementsRemaining = fifo_acq.available;
