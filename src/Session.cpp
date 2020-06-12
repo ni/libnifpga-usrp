@@ -40,12 +40,12 @@ public:
 } // unnamed namespace
 
 Session::Session(
-    const std::string& bitfilePath, const std::string& device, bool& alreadyDownloaded)
-    : bitfile(bitfilePath)
+    std::unique_ptr<Bitfile> bitfile_, const std::string& device, bool& alreadyDownloaded)
+    : bitfile(std::move(bitfile_))
     , device(device)
     , boardFile(DeviceFile::getCdevPath(device), DeviceFile::ReadWrite, alreadyErrnoMap)
     , resetFile(device, "reset_vi")
-    , baseAddressOnDevice(bitfile.getBaseAddressOnDevice())
+    , baseAddressOnDevice(bitfile->getBaseAddressOnDevice())
 {
     alreadyDownloaded = false;
 
@@ -66,7 +66,7 @@ Session::Session(
     boardFile.mapMemory(fpgaAddressSpaceSize);
 
     // for every FIFO in this bitfile
-    for (auto it = bitfile.getFifos().cbegin(), end = bitfile.getFifos().cend();
+    for (auto it = bitfile->getFifos().cbegin(), end = bitfile->getFifos().cend();
          it != end;
          ++it) {
         // Bitfile constructor guarantees these are numbered [0,n-1]
@@ -78,7 +78,7 @@ Session::Session(
 
 const Bitfile& Session::getBitfile() const
 {
-    return bitfile;
+    return *bitfile;
 }
 
 // NOTE: we close even on incoming bad status to keep close semantics
@@ -205,8 +205,8 @@ void Session::findResource(const char* const name,
         bool found              = false;
         NiFpgaEx_Register local = 0;
         // for each register
-        for (auto it  = bitfile.getRegisters().cbegin(),
-                  end = bitfile.getRegisters().cend();
+        for (auto it  = bitfile->getRegisters().cbegin(),
+                  end = bitfile->getRegisters().cend();
              it != end;
              ++it) {
             const auto& reg = *it;
@@ -234,7 +234,7 @@ void Session::findResource(const char* const name,
     // handle FIFOs
     else if (isDmaFifo(type)) {
         // TODO: support searching for P2P FIFOs instead of just these DMA FIFOs?
-        for (auto it = bitfile.getFifos().cbegin(), end = bitfile.getFifos().cend();
+        for (auto it = bitfile->getFifos().cbegin(), end = bitfile->getFifos().cend();
              it != end;
              ++it) {
             const auto& fifo = *it;

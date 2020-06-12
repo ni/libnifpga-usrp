@@ -36,7 +36,7 @@ namespace nirio {
 class Session
 {
 public:
-    Session(const std::string& bitfilePath,
+    Session(std::unique_ptr<Bitfile> bitfile,
         const std::string& device,
         bool& alreadyDownloaded);
 
@@ -168,7 +168,7 @@ private:
     void readOrWrite(
         NiFpgaEx_Register reg, typename T::CType* values, size_t count) const;
 
-    Bitfile bitfile;
+    std::unique_ptr<Bitfile> bitfile;
     const std::string device;
     DeviceFile boardFile;
     const SysfsFile resetFile;

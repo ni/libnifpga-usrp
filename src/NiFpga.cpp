@@ -105,7 +105,7 @@ Session& getSession(NiFpga_Session session)
 }
 } // namespace
 
-NiFpga_Status NiFpga_Open(const char* const bitfile,
+NiFpga_Status NiFpga_Open(const char* const bitfilePath,
     const char* const signature,
     const char* const resource,
     const uint32_t attribute,
@@ -116,7 +116,7 @@ NiFpga_Status NiFpga_Open(const char* const bitfile,
     // NOTE: signature can now be NULL
     if (session)
         *session = 0;
-    if (!session || !bitfile || !resource)
+    if (!session || !bitfilePath || !resource)
         return NiFpga_Status_InvalidParameter;
     //  only supported attributes for now
     if (attribute != 0 && attribute != NiFpga_OpenAttribute_NoRun)
@@ -125,10 +125,12 @@ NiFpga_Status NiFpga_Open(const char* const bitfile,
     // wrap all code that might throw in a big safety net
     Status status;
     try {
+        auto bitfile = std::make_unique<Bitfile>(bitfilePath);
+
         bool alreadyDownloaded;
         // create a new session object, which opens and downloads if necessary
         std::unique_ptr<Session> newSession(
-            new Session(bitfile, resource, alreadyDownloaded));
+            new Session(std::move(bitfile), resource, alreadyDownloaded));
         // TODO: instead of making Session constructor do open and download, break
         //       these up into separate methods that return more information so
         //       that we don't have infer stuff from warnings, etc.
