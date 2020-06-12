@@ -2,6 +2,7 @@
 #include "dtgen.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <fstream>
 #include <iostream>
 #include <memory>
 
@@ -103,9 +104,15 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    nirio::Bitfile bitfile(argv[1]);
+    nirio::Bitfile bitfile(argv[1], true);
 
     std::cout << generateDeviceTree(bitfile) << std::endl;
+
+    auto&& bitstream = bitfile.getBitstream();
+
+    const auto bitstreamName = bitfile.getSignature() + ".bit";
+    std::ofstream bitstream_file(bitstreamName);
+    bitstream_file.write(bitstream.data(), bitstream.size());
 
     return 0;
 }
