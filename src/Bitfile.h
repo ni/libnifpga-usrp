@@ -27,7 +27,7 @@ namespace nirio {
 class Bitfile
 {
 public:
-    explicit Bitfile(const std::string& path);
+    explicit Bitfile(const std::string& path, bool parseBitstream = false);
 
     const std::string& getPath() const;
 
@@ -36,6 +36,8 @@ public:
     const std::string& getTargetClass() const;
 
     const std::string& getOverlay() const;
+
+    const std::vector<char>& getBitstream() const;
 
     NiFpgaEx_Register getBaseAddressOnDevice() const;
 
@@ -64,6 +66,7 @@ private:
     std::string signature;
     std::string targetClass;
     std::string dtOverlay;
+    std::vector<char> bitstream;
     NiFpgaEx_Register baseAddressOnDevice;
     NiFpgaEx_Register signatureRegister;
     NiFpgaEx_Register controlRegister;

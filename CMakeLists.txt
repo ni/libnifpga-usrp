@@ -19,6 +19,7 @@ add_library(nifpga SHARED
     src/Session.cpp
     src/SysfsFile.cpp
     src/Type.cpp
+    src/libb64/cdecode.cpp
 )
 
 set_target_properties(nifpga PROPERTIES CXX_VISIBILITY_PRESET hidden)
@@ -36,8 +37,7 @@ add_executable(lvbitx2dtso
     src/RegisterInfo.cpp
     src/ResourceInfo.cpp
     src/Type.cpp
-    # only needed if this starts to output the.bit as well:
-    # src / libb64 / cdecode.c
+    src/libb64/cdecode.cpp
 )
 
 add_custom_command(

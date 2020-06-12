@@ -16,6 +16,7 @@
 #include "Exception.h"
 #include "NiFpga.h"
 #include "Type.h"
+#include "libb64/cdecode.h"
 #include "rapidxml/rapidxml_utils.hpp"
 #include <cstring>
 #include <limits> // std::numeric_limits
@@ -118,7 +119,7 @@ rapidxml::xml_node<>& operator/(rapidxml::xml_node<>& parent, const char* const 
 
 } // unnamed namespace
 
-Bitfile::Bitfile(const std::string& path)
+Bitfile::Bitfile(const std::string& path, bool parseBitstream)
     : path(path)
     , baseAddressOnDevice(invalid)
     , signatureRegister(invalid)
@@ -327,7 +328,16 @@ Bitfile::Bitfile(const std::string& path)
             // no bitstream encoding specified means it's de facto Base64
         }
         // find the bitstream
-        auto& xmlBitstream = xmlBitfile / "Bitstream";
+        if (parseBitstream) {
+            auto& xmlBitstream = xmlBitfile / "Bitstream";
+            bitstream.resize(xmlBitstream.value_size());
+
+            base64_decodestate state;
+            base64_init_decodestate(&state);
+            auto decodedSize = base64_decode_block(
+                xmlBitstream.value(), xmlBitstream.value_size(), &(bitstream[0]), &state);
+            bitstream.resize(decodedSize);
+        }
     } catch (const std::runtime_error&) {
         // rapidxml::file will throw this if it fails to open the file
         NIRIO_THROW(BitfileReadErrorException());
@@ -355,6 +365,11 @@ const std::string& Bitfile::getTargetClass() const
 const std::string& Bitfile::getOverlay() const
 {
     return dtOverlay;
+}
+
+const std::vector<char>& Bitfile::getBitstream() const
+{
+    return bitstream;
 }
 
 NiFpgaEx_Register Bitfile::getBaseAddressOnDevice() const
