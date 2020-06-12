@@ -210,9 +210,27 @@ Bitfile::Bitfile(const std::string& path)
         targetClass      = (xmlProject / "TargetClass").value();
         // determine whether it's auto-loaded
         autoRunWhenDownloaded = parseBoolean(xmlProject / "AutoRunWhenDownloaded");
+        auto& compilationResults =
+            xmlProject / "CompilationResultsTree" / "CompilationResults";
+        try {
+            // overlay is, for some reason, stored as a string of hex characters...
+            char cbuf[3];
+            cbuf[2]                = 0;
+            auto& overlay          = compilationResults / "deviceTreeOverlay";
+            auto overlayLen        = overlay.value_size();
+            const char* overlayStr = overlay.value();
+            assert(overlayLen % 2 == 0);
+            for (size_t i = 0; i < overlayLen; i += 2) {
+                cbuf[0]  = overlayStr[i];
+                cbuf[1]  = overlayStr[i + 1];
+                auto val = strtoul(cbuf, NULL, 16);
+                dtOverlay.push_back(static_cast<char>(val));
+            }
+        } catch (const rapidxml::parse_error&) {
+            // may be absent
+        }
         // find the base address
-        auto& xmlNiFpga =
-            xmlProject / "CompilationResultsTree" / "CompilationResults" / "NiFpga";
+        auto& xmlNiFpga     = compilationResults / "NiFpga";
         baseAddressOnDevice = parseUnsignedInteger(xmlNiFpga / "BaseAddressOnDevice");
         // get the bitstream version
         bitstreamVersion = parseUnsignedInteger(xmlBitfile / "BitstreamVersion");
@@ -332,6 +350,11 @@ const std::string& Bitfile::getSignature() const
 const std::string& Bitfile::getTargetClass() const
 {
     return targetClass;
+}
+
+const std::string& Bitfile::getOverlay() const
+{
+    return dtOverlay;
 }
 
 NiFpgaEx_Register Bitfile::getBaseAddressOnDevice() const

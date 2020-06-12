@@ -35,6 +35,8 @@ public:
 
     const std::string& getTargetClass() const;
 
+    const std::string& getOverlay() const;
+
     NiFpgaEx_Register getBaseAddressOnDevice() const;
 
     NiFpgaEx_Register getSignatureRegister() const;
@@ -61,6 +63,7 @@ private:
     const std::string path;
     std::string signature;
     std::string targetClass;
+    std::string dtOverlay;
     NiFpgaEx_Register baseAddressOnDevice;
     NiFpgaEx_Register signatureRegister;
     NiFpgaEx_Register controlRegister;
