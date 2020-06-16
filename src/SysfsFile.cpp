@@ -110,6 +110,12 @@ void SysfsFile::write(const std::string& value) const
     file.write(value.c_str(), value.size());
 }
 
+bool SysfsFile::exists() const
+{
+    struct stat s;
+    return !::stat(path.c_str(), &s);
+}
+
 bool SysfsFile::waitUntilExistence(const bool exists, const size_t milliseconds) const
 {
     // start the clock

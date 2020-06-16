@@ -57,6 +57,8 @@ public:
     template <typename T>
     void write(T value) const;
 
+    bool exists() const;
+
     /**
      * Waits on this file existing, or for the timeout to expire. Note that
      * there are race conditions where the existence is satisfied temporarily
