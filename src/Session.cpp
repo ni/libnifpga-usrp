@@ -39,16 +39,13 @@ public:
 
 } // unnamed namespace
 
-Session::Session(
-    std::unique_ptr<Bitfile> bitfile_, const std::string& device, bool& alreadyDownloaded)
+Session::Session(std::unique_ptr<Bitfile> bitfile_, const std::string& device)
     : bitfile(std::move(bitfile_))
     , device(device)
     , boardFile(DeviceFile::getCdevPath(device), DeviceFile::ReadWrite, alreadyErrnoMap)
     , resetFile(device, "reset_vi")
     , baseAddressOnDevice(bitfile->getBaseAddressOnDevice())
 {
-    alreadyDownloaded = false;
-
 // TODO auchter: This should at least validate the bitfile signature
 // against the sysfs file that contains the signature.
 
@@ -59,8 +56,6 @@ Session::Session(
     if (modelName != bitfile.getTargetClass())
         NIRIO_THROW(DeviceTypeMismatchException());
 #endif
-
-    alreadyDownloaded = download();
 
     const auto fpgaAddressSpaceSize = SysfsFile(device, "fpga_size").readU32();
     boardFile.mapMemory(fpgaAddressSpaceSize);

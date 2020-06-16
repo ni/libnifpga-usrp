@@ -36,9 +36,7 @@ namespace nirio {
 class Session
 {
 public:
-    Session(std::unique_ptr<Bitfile> bitfile,
-        const std::string& device,
-        bool& alreadyDownloaded);
+    Session(std::unique_ptr<Bitfile> bitfile, const std::string& device);
 
     const Bitfile& getBitfile() const;
 

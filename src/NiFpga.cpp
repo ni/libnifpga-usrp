@@ -127,13 +127,10 @@ NiFpga_Status NiFpga_Open(const char* const bitfilePath,
     try {
         auto bitfile = std::make_unique<Bitfile>(bitfilePath);
 
-        bool alreadyDownloaded;
+        bool alreadyDownloaded = true;
+
         // create a new session object, which opens and downloads if necessary
-        std::unique_ptr<Session> newSession(
-            new Session(std::move(bitfile), resource, alreadyDownloaded));
-        // TODO: instead of making Session constructor do open and download, break
-        //       these up into separate methods that return more information so
-        //       that we don't have infer stuff from warnings, etc.
+        std::unique_ptr<Session> newSession(new Session(std::move(bitfile), resource));
 
         // ensure signature matches unless they didn't pass one
         if (signature && signature != newSession->getBitfile().getSignature())
