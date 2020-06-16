@@ -82,26 +82,18 @@ static auto gen_rio_node(const nirio::Bitfile& bitfile)
     overlay->add_property("#size-cells", 2);
     overlay->add_node(std::move(rio));
 
-    auto fragment = std::make_unique<dt_node>("fragment", 1);
+    auto fragment = std::make_unique<dt_node>("fragment", 100);
     fragment->add_property_phandle("target", "amba");
     fragment->add_node(std::move(overlay));
 
     return fragment;
 }
 
-static auto gen_firmware_node(const nirio::Bitfile& bitfile)
+static std::string generateDeviceTree(const nirio::Bitfile& bitfile)
 {
-    auto overlay = std::make_unique<dt_node>("__overlay__");
-    overlay->add_property("#address-cells", 2);
-    overlay->add_property("#size-cells", 2);
-    auto name = bitfile.getSignature() + ".bit";
-    overlay->add_property("firmware-name", name.c_str());
-
-    auto fragment = std::make_unique<dt_node>("fragment", 0);
-    fragment->add_property_phandle("target", "fpga_full");
-    fragment->add_node(std::move(overlay));
-
-    return fragment;
+    auto overlay = bitfile.getOverlay();
+    overlay.insert(overlay.rfind("};"), gen_rio_node(bitfile)->render(0));
+    return overlay;
 }
 
 int main(int argc, char** argv)
@@ -113,13 +105,7 @@ int main(int argc, char** argv)
 
     nirio::Bitfile bitfile(argv[1]);
 
-    auto root = std::make_unique<dt_node>("/");
-    root->add_node(gen_firmware_node(bitfile));
-    root->add_node(gen_rio_node(bitfile));
-
-    std::cout << "/dts-v1/;" << std::endl;
-    std::cout << "/plugin/;" << std::endl;
-    std::cout << root->render(0);
+    std::cout << generateDeviceTree(bitfile) << std::endl;
 
     return 0;
 }
