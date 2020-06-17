@@ -19,6 +19,7 @@
 #include "libb64/cdecode.h"
 #include "rapidxml/rapidxml_utils.hpp"
 #include <cstring>
+#include <iostream>
 #include <limits> // std::numeric_limits
 
 namespace nirio {
@@ -56,10 +57,10 @@ Type parseType(const std::string& text)
     else if (!strcasecmp(text.c_str(), "Dbl"))
         return Dbl();
     else {
-        // FXP is supported by LabVIEW FPGA but not the C API, so we
-        // mark them as unsupported and ignore them for now. Anything else we
-        // didn't expect is an error.
-        if (text != "FXP")
+        // FXPs and Clusters are supported by LabVIEW FPGA but not the C API,
+        // so we mark them as unsupported and ignore them for now. Anything
+        // else we didn't expect is an error.
+        if (text != "FXP" && text != "Cluster")
             NIRIO_THROW(CorruptBitfileException());
         return UnsupportedType();
     }
