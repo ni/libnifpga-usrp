@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <sys/stat.h>
 #include <cstring>
 #include <memory>
 #include <string>
@@ -84,4 +85,11 @@ static std::string joinPath(const std::string& p1, const std::string& p2, const 
 {
     return joinPath(p1 + '/' + p2, ps...);
 }
+
+static inline bool exists(const std::string& path)
+{
+    struct stat s;
+    return !::stat(path.c_str(), &s);
+}
+
 } // namespace nirio
