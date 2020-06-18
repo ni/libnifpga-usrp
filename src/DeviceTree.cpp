@@ -25,7 +25,7 @@ static auto gen_rio_node(const nirio::Bitfile& bitfile)
     using dtgen::dt_node;
 
     const auto base          = base_address(bitfile);
-    const auto size          = 0x60000ULL;
+    const auto size          = 0x80000ULL;
     const auto fifo_base     = base + 0x2000;
     const auto fifo_reg_size = 0x40;
     auto&& fifos             = bitfile.getFifos();
