@@ -26,7 +26,7 @@ static auto gen_rio_node(const nirio::Bitfile& bitfile)
 
     const auto base          = base_address(bitfile);
     const auto size          = 0x80000ULL;
-    const auto fifo_base     = base + 0x2000;
+    const auto fifo_base     = base + 0x40000;
     const auto fifo_reg_size = 0x40;
     auto&& fifos             = bitfile.getFifos();
 
@@ -41,11 +41,6 @@ static auto gen_rio_node(const nirio::Bitfile& bitfile)
     rio->add_property("reset-offset", bitfile.getResetRegister());
 
     rio->add_property("reg", {upper(base), lower(base), upper(size), lower(size)});
-    rio->add_property("ranges",
-        {0x0,
-            upper(fifo_base),
-            lower(fifo_base),
-            static_cast<uint32_t>(fifo_reg_size * fifos.size())});
 
     if (bitfile.isResetAutoClears())
         rio->add_property("ni,reset-auto-clears");
@@ -53,9 +48,21 @@ static auto gen_rio_node(const nirio::Bitfile& bitfile)
     if (bitfile.isAutoRunWhenDownloaded())
         rio->add_property("ni,run-when-loaded");
 
+    // TODO: Reconsider this. The InChWORM IO space is located at 0x40000,
+    // which really means that all LVFPGA registers are referenced to this
+    // address.  Perhaps the top-level device tree entry should be the
+    // InChWORM, with a ranges property for the IO space. Under that, have the
+    // nodes for the LVFPGA stuff.
+
     uint32_t min_offset = 0xFFFFFFFF;
     for (auto&& fifo : fifos)
         min_offset = std::min(min_offset, fifo.getOffset());
+
+    rio->add_property("ranges",
+        {0x0,
+            upper(fifo_base + min_offset),
+            lower(fifo_base + min_offset),
+            static_cast<uint32_t>(fifo_reg_size * fifos.size())});
 
     for (auto&& fifo : fifos) {
         auto node = std::make_unique<dt_node>("dma-fifo", fifo.getNumber());
