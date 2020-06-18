@@ -10,6 +10,8 @@ include_directories(include)
 add_library(nifpga SHARED
     src/Bitfile.cpp
     src/DeviceFile.cpp
+    src/DeviceTree.cpp
+    src/dtgen.cpp
     src/ErrnoMap.cpp
     src/Fifo.cpp
     src/FifoInfo.cpp
@@ -31,6 +33,7 @@ target_link_options(nifpga PRIVATE "LINKER:-z,defs")
 
 add_executable(lvbitx2dtso
     src/Bitfile.cpp
+    src/DeviceTree.cpp
     src/dtgen.cpp
     src/FifoInfo.cpp
     src/lvbitx2dtso.cpp
