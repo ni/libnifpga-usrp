@@ -16,6 +16,7 @@
 
 #include "NiFpga.h"
 #include "Common.h"
+#include "DeviceTree.h"
 #include "ErrnoMap.h"
 #include "Exception.h"
 #include "Session.h"
@@ -23,6 +24,7 @@
 #include <sched.h> // sched_yield
 #include <cassert> // assert
 #include <cstdlib> // realpath
+#include <fstream>
 #include <iostream> // std::cerr, std::endl
 #include <map>
 #include <memory> // std::unique_ptr
@@ -125,9 +127,44 @@ NiFpga_Status NiFpga_Open(const char* const bitfilePath,
     // wrap all code that might throw in a big safety net
     Status status;
     try {
-        auto bitfile = std::make_unique<Bitfile>(bitfilePath);
+        auto bitfile          = std::make_unique<Bitfile>(bitfilePath, true);
+        auto bitfileSignature = bitfile->getSignature();
+        SysfsFile signatureFile(resource, "signature");
 
-        bool alreadyDownloaded = true;
+        bool alreadyDownloaded = false;
+
+        if (signatureFile.exists()) {
+            auto runningSignature = signatureFile.readLineNoErrno();
+            if (!strcasecmp(runningSignature.c_str(), bitfileSignature.c_str()))
+                alreadyDownloaded = true;
+        }
+
+        if (!alreadyDownloaded) {
+            const std::string fwPath = "/lib/firmware";
+            const auto fpgaPath      = joinPath(fwPath, bitfileSignature + ".bin");
+            const auto dtsPath       = joinPath(fwPath, bitfileSignature + ".dts");
+
+            // write .dts and .bin to some location
+            if (!exists(fpgaPath)) {
+                auto&& bitstream = bitfile->getBitstream();
+                std::ofstream fpgaFile(fpgaPath);
+                fpgaFile.write(bitstream.data(), bitstream.size());
+            }
+
+            if (!exists(dtsPath)) {
+                auto dts = nirio::generateDeviceTree(*bitfile);
+                std::ofstream dtsFile(dtsPath);
+                dtsFile.write(dts.c_str(), dts.size());
+            }
+
+            // invoke uhd_image_loader to load image
+            std::string cmd = "uhd_image_loader --args \"type=x4xx\" --fpga-path ";
+            cmd += fpgaPath;
+            if (system(cmd.c_str())) {
+                std::cerr << "call to load fpga failed: " << errno << std::endl;
+                NIRIO_THROW(SoftwareFaultException());
+            }
+        }
 
         // create a new session object, which opens and downloads if necessary
         std::unique_ptr<Session> newSession(new Session(std::move(bitfile), resource));
