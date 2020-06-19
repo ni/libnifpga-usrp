@@ -127,7 +127,7 @@ NiFpga_Status NiFpga_Open(const char* const bitfilePath,
     // wrap all code that might throw in a big safety net
     Status status;
     try {
-        auto bitfile          = std::make_unique<Bitfile>(bitfilePath, true);
+        auto bitfile          = std::make_unique<Bitfile>(bitfilePath);
         auto bitfileSignature = bitfile->getSignature();
         SysfsFile signatureFile(resource, "signature");
 

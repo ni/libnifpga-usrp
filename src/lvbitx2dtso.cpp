@@ -13,7 +13,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    nirio::Bitfile bitfile(argv[1], true);
+    nirio::Bitfile bitfile(argv[1]);
 
     std::cout << nirio::generateDeviceTree(bitfile) << std::endl;
 

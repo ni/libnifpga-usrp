@@ -120,7 +120,7 @@ rapidxml::xml_node<>& operator/(rapidxml::xml_node<>& parent, const char* const 
 
 } // unnamed namespace
 
-Bitfile::Bitfile(const std::string& path, bool parseBitstream)
+Bitfile::Bitfile(const std::string& path)
     : path(path)
     , baseAddressOnDevice(invalid)
     , signatureRegister(invalid)
@@ -316,29 +316,6 @@ Bitfile::Bitfile(const std::string& path, bool parseBitstream)
         for (auto it = fifos.cbegin(), end = fifos.cend(); it != end; ++it)
             if (!it->isOffsetSet())
                 NIRIO_THROW(CorruptBitfileException());
-        // check bitstream encoding
-        try {
-            // if it was specified, ensure it's Base64
-            if (strcasecmp((xmlBitfile / "BitstreamEncoding").value(), "base64")) {
-                // this is considered corrupt instead of incompatible because we
-                // already validated it was not a future BitfileVersion
-                NIRIO_THROW(CorruptBitfileException());
-                return;
-            }
-        } catch (const rapidxml::parse_error&) {
-            // no bitstream encoding specified means it's de facto Base64
-        }
-        // find the bitstream
-        if (parseBitstream) {
-            auto& xmlBitstream = xmlBitfile / "Bitstream";
-            bitstream.resize(xmlBitstream.value_size());
-
-            base64_decodestate state;
-            base64_init_decodestate(&state);
-            auto decodedSize = base64_decode_block(
-                xmlBitstream.value(), xmlBitstream.value_size(), &(bitstream[0]), &state);
-            bitstream.resize(decodedSize);
-        }
     } catch (const std::runtime_error&) {
         // rapidxml::file will throw this if it fails to open the file
         NIRIO_THROW(BitfileReadErrorException());
@@ -368,8 +345,37 @@ const std::string& Bitfile::getOverlay() const
     return dtOverlay;
 }
 
-const std::vector<char>& Bitfile::getBitstream() const
+std::vector<char> Bitfile::getBitstream() const
 {
+    rapidxml::file<> bitfile(path.c_str());
+    rapidxml::xml_document<> document;
+    document.parse<0>(bitfile.data());
+
+    auto& xmlBitfile = document / "Bitfile";
+
+    // check bitstream encoding
+    try {
+        // if it was specified, ensure it's Base64
+        if (strcasecmp((xmlBitfile / "BitstreamEncoding").value(), "base64")) {
+            // this is considered corrupt instead of incompatible because we
+            // already validated it was not a future BitfileVersion
+            NIRIO_THROW(CorruptBitfileException());
+        }
+    } catch (const rapidxml::parse_error&) {
+        // no bitstream encoding specified means it's de facto Base64
+    }
+    // find the bitstream
+    auto& xmlBitstream = xmlBitfile / "Bitstream";
+
+    std::vector<char> bitstream;
+    bitstream.resize(xmlBitstream.value_size());
+
+    base64_decodestate state;
+    base64_init_decodestate(&state);
+    auto decodedSize = base64_decode_block(
+        xmlBitstream.value(), xmlBitstream.value_size(), &(bitstream[0]), &state);
+    bitstream.resize(decodedSize);
+
     return bitstream;
 }
 
