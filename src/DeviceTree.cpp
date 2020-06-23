@@ -20,6 +20,22 @@ static uint32_t lower(uint64_t v)
     return static_cast<uint32_t>(v & 0xFFFFFFFF);
 }
 
+// unpack a 0 padded hex string into words
+static std::vector<uint32_t> unhexify(const std::string& s)
+{
+    std::vector<uint32_t> v;
+    char buf[9];
+
+    assert(s.size() % 8 == 0);
+    for (size_t i = 0; i < s.size() / 8; i++) {
+        s.copy(buf, 8, i * 8);
+        buf[8] = 0;
+        v.push_back(strtoul(buf, NULL, 16));
+    }
+
+    return v;
+}
+
 static auto gen_rio_node(const nirio::Bitfile& bitfile)
 {
     using dtgen::dt_node;
@@ -36,6 +52,7 @@ static auto gen_rio_node(const nirio::Bitfile& bitfile)
     rio->add_property("compatible", "ni,rio");
     rio->add_property("status", "okay");
 
+    rio->add_property("signature", unhexify(bitfile.getSignature()));
     rio->add_property("control-offset", bitfile.getControlRegister());
     rio->add_property("signature-offset", bitfile.getSignatureRegister());
     rio->add_property("reset-offset", bitfile.getResetRegister());
