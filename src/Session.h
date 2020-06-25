@@ -170,6 +170,7 @@ private:
     const std::string device;
     DeviceFile boardFile;
     const SysfsFile resetFile;
+    const size_t fpgaAddressSpaceSize;
     const uint32_t baseAddressOnDevice;
 
     typedef std::vector<std::unique_ptr<Fifo>> FifoVector;

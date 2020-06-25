@@ -44,6 +44,7 @@ Session::Session(std::unique_ptr<Bitfile> bitfile_, const std::string& device)
     , device(device)
     , boardFile(DeviceFile::getCdevPath(device), DeviceFile::ReadWrite, alreadyErrnoMap)
     , resetFile(device, "reset_vi")
+    , fpgaAddressSpaceSize(SysfsFile(device, "fpga_size").readU32())
     , baseAddressOnDevice(bitfile->getBaseAddressOnDevice())
 {
 // TODO auchter: This should at least validate the bitfile signature
@@ -57,7 +58,6 @@ Session::Session(std::unique_ptr<Bitfile> bitfile_, const std::string& device)
         NIRIO_THROW(DeviceTypeMismatchException());
 #endif
 
-    const auto fpgaAddressSpaceSize = SysfsFile(device, "fpga_size").readU32();
     boardFile.mapMemory(fpgaAddressSpaceSize);
 
     // for every FIFO in this bitfile
