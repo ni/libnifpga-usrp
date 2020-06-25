@@ -57,7 +57,8 @@ public:
 
     void reset() const;
 
-    bool download(bool force = false);
+    void preDownload();
+    void postDownload();
 
     void findResource(
         const char* name, NiFpgaEx_ResourceType type, NiFpgaEx_Resource& resource) const;

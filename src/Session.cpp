@@ -148,22 +148,17 @@ void Session::reset() const
     setStoppedAllFifos();
 }
 
-// returns whether the bitfile had already been downloaded
-bool Session::download(bool force)
+void Session::preDownload()
 {
-    bool alreadyRunning = false;
+    boardFile->ioctl(NIRIO_IOC_FORCE_REDOWNLOAD);
 
+    boardFile.reset(nullptr);
     setStoppedAllFifos();
+}
 
-    // actually do the download by writing the personality blob
-    try {
-        // TODO auchter: boardFile.write(personalityBlob->getBlob(),
-        // personalityBlob->getSize());
-    } catch (const FpgaAlreadyRunningException&) {
-        alreadyRunning = true;
-    }
-
-    return alreadyRunning;
+void Session::postDownload()
+{
+    createBoardFile();
 }
 
 void Session::setStoppedAllFifos() const

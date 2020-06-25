@@ -281,7 +281,7 @@ NiFpga_Status NiFpga_Download(const NiFpga_Session session)
         auto& sessionObject = getSession(session);
         try {
             sessionObject.preDownload();
-            // do download
+            download(sessionObject.getBitfile());
             sessionObject.postDownload();
         } catch (const FpgaBusyFpgaInterfaceCApiException&) {
             // If a download fails, close this session.
