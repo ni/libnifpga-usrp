@@ -112,6 +112,8 @@ public:
         size_t* elementsRemaining);
 
 private:
+    void createBoardFile();
+
     /**
      * Bit that when asserted means a given control or indicator's access may
      * timeout (yielding NiFpga_Status_CommunicationTimeout) due to being in

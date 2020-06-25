@@ -57,8 +57,7 @@ Session::Session(std::unique_ptr<Bitfile> bitfile_, const std::string& device)
         NIRIO_THROW(DeviceTypeMismatchException());
 #endif
 
-    boardFile.reset(new DeviceFile(DeviceFile::getCdevPath(device), DeviceFile::ReadWrite, alreadyErrnoMap));
-    boardFile->mapMemory(fpgaAddressSpaceSize);
+    createBoardFile();
 
     // for every FIFO in this bitfile
     for (auto it = bitfile->getFifos().cbegin(), end = bitfile->getFifos().cend();
@@ -69,6 +68,12 @@ Session::Session(std::unique_ptr<Bitfile> bitfile_, const std::string& device)
         // store in member as upgraded FifoInfo
         fifos.emplace_back(new Fifo(*it, device));
     }
+}
+
+void Session::createBoardFile()
+{
+    boardFile.reset(new DeviceFile(DeviceFile::getCdevPath(device), DeviceFile::ReadWrite, alreadyErrnoMap));
+    boardFile->mapMemory(fpgaAddressSpaceSize);
 }
 
 const Bitfile& Session::getBitfile() const
