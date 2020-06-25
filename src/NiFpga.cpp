@@ -105,6 +105,36 @@ Session& getSession(NiFpga_Session session)
 {
     return sessionManager.getSession(session);
 }
+
+void download(const nirio::Bitfile &bitfile)
+{
+    const auto bitfileSignature = bitfile.getSignature();
+    const std::string fwPath = "/lib/firmware";
+    const auto fpgaPath      = joinPath(fwPath, bitfileSignature + ".bin");
+    const auto dtsPath       = joinPath(fwPath, bitfileSignature + ".dts");
+
+    // write .dts and .bin to some location
+    if (!exists(fpgaPath)) {
+        auto&& bitstream = bitfile.getBitstream();
+        std::ofstream fpgaFile(fpgaPath);
+        fpgaFile.write(bitstream.data(), bitstream.size());
+    }
+
+    if (!exists(dtsPath)) {
+        auto dts = nirio::generateDeviceTree(bitfile);
+        std::ofstream dtsFile(dtsPath);
+        dtsFile.write(dts.c_str(), dts.size());
+    }
+
+    // invoke uhd_image_loader to load image
+    std::string cmd = "uhd_image_loader --args \"type=x4xx\" --fpga-path ";
+    cmd += fpgaPath;
+    if (system(cmd.c_str())) {
+        std::cerr << "call to load fpga failed: " << errno << std::endl;
+        NIRIO_THROW(SoftwareFaultException());
+    }
+}
+
 } // namespace
 
 NiFpga_Status NiFpga_Open(const char* const bitfilePath,
@@ -139,32 +169,8 @@ NiFpga_Status NiFpga_Open(const char* const bitfilePath,
                 alreadyDownloaded = true;
         }
 
-        if (!alreadyDownloaded) {
-            const std::string fwPath = "/lib/firmware";
-            const auto fpgaPath      = joinPath(fwPath, bitfileSignature + ".bin");
-            const auto dtsPath       = joinPath(fwPath, bitfileSignature + ".dts");
-
-            // write .dts and .bin to some location
-            if (!exists(fpgaPath)) {
-                auto&& bitstream = bitfile->getBitstream();
-                std::ofstream fpgaFile(fpgaPath);
-                fpgaFile.write(bitstream.data(), bitstream.size());
-            }
-
-            if (!exists(dtsPath)) {
-                auto dts = nirio::generateDeviceTree(*bitfile);
-                std::ofstream dtsFile(dtsPath);
-                dtsFile.write(dts.c_str(), dts.size());
-            }
-
-            // invoke uhd_image_loader to load image
-            std::string cmd = "uhd_image_loader --args \"type=x4xx\" --fpga-path ";
-            cmd += fpgaPath;
-            if (system(cmd.c_str())) {
-                std::cerr << "call to load fpga failed: " << errno << std::endl;
-                NIRIO_THROW(SoftwareFaultException());
-            }
-        }
+        if (!alreadyDownloaded)
+            download(*bitfile);
 
         // create a new session object, which opens and downloads if necessary
         std::unique_ptr<Session> newSession(new Session(std::move(bitfile), resource));
@@ -274,7 +280,9 @@ NiFpga_Status NiFpga_Download(const NiFpga_Session session)
     try {
         auto& sessionObject = getSession(session);
         try {
-            sessionObject.download(true);
+            sessionObject.preDownload();
+            // do download
+            sessionObject.postDownload();
         } catch (const FpgaBusyFpgaInterfaceCApiException&) {
             // If a download fails, close this session.
             // TODO: Should this close for any failure, and not just busy?
