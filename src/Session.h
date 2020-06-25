@@ -168,7 +168,7 @@ private:
 
     std::unique_ptr<Bitfile> bitfile;
     const std::string device;
-    DeviceFile boardFile;
+    std::unique_ptr<DeviceFile> boardFile;
     const SysfsFile resetFile;
     const size_t fpgaAddressSpaceSize;
     const uint32_t baseAddressOnDevice;
@@ -216,7 +216,7 @@ void Session::readOrWrite(
     offset -= baseAddressOnDevice;
     // 32-bit and smaller accesses are done by a single 32-bit access to the
     // mapped registers file
-    if ((IsSingle || count == 1) && T::elementBytes <= 4 && boardFile.isMapped()) {
+    if ((IsSingle || count == 1) && T::elementBytes <= 4 && boardFile->isMapped()) {
         // Helper type to select which form of mapped access should be used; for
         // all integral types, use a 32-bit unsigned access; use float for Sgl
         typedef
@@ -227,9 +227,9 @@ void Session::readOrWrite(
         // NOTE: we don't bother setting -1 on error for reads because we do that
         //       in NiFpga.cpp
         if (IsWrite)
-            boardFile.mappedWrite<MappedType>(offset, *values);
+            boardFile->mappedWrite<MappedType>(offset, *values);
         else
-            *values = boardFile.mappedRead<MappedType>(offset);
+            *values = boardFile->mappedRead<MappedType>(offset);
     }
     // 64-bit and higher accesses are done through an ioctl for safety and
     // performance reasons. The "array engine" on the FPGA expects that one
@@ -259,9 +259,9 @@ void Session::readOrWrite(
 
         if (IsWrite) {
             packArray<T::logicalBits>(array->data, values, count);
-            boardFile.ioctl(NIRIO_IOC_WRITE_ARRAY, array);
+            boardFile->ioctl(NIRIO_IOC_WRITE_ARRAY, array);
         } else {
-            boardFile.ioctl(NIRIO_IOC_READ_ARRAY, array);
+            boardFile->ioctl(NIRIO_IOC_READ_ARRAY, array);
             unpackArray<T::logicalBits>(array->data, values, count);
         }
     }

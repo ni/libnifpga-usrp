@@ -42,7 +42,6 @@ public:
 Session::Session(std::unique_ptr<Bitfile> bitfile_, const std::string& device)
     : bitfile(std::move(bitfile_))
     , device(device)
-    , boardFile(DeviceFile::getCdevPath(device), DeviceFile::ReadWrite, alreadyErrnoMap)
     , resetFile(device, "reset_vi")
     , fpgaAddressSpaceSize(SysfsFile(device, "fpga_size").readU32())
     , baseAddressOnDevice(bitfile->getBaseAddressOnDevice())
@@ -58,7 +57,8 @@ Session::Session(std::unique_ptr<Bitfile> bitfile_, const std::string& device)
         NIRIO_THROW(DeviceTypeMismatchException());
 #endif
 
-    boardFile.mapMemory(fpgaAddressSpaceSize);
+    boardFile.reset(new DeviceFile(DeviceFile::getCdevPath(device), DeviceFile::ReadWrite, alreadyErrnoMap));
+    boardFile->mapMemory(fpgaAddressSpaceSize);
 
     // for every FIFO in this bitfile
     for (auto it = bitfile->getFifos().cbegin(), end = bitfile->getFifos().cend();
@@ -82,7 +82,7 @@ void Session::close(const bool resetIfLastSession)
     // optionally tell the kernel to reset if last session
     if (resetIfLastSession) {
         try {
-            boardFile.ioctl(NIRIO_IOC_RESET_ON_LAST_REF);
+            boardFile->ioctl(NIRIO_IOC_RESET_ON_LAST_REF);
         } catch (const FpgaBusyFpgaInterfaceCApiException&) {
             // we ignore when reset didn't happen due to multiple sessions
         }
