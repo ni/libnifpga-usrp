@@ -195,7 +195,7 @@ void Session::findResource(const char* const name,
     // validate parameters
     assert(name); // checked in NiFpga.cpp
     // handle registers
-    if (isRegister(type)) {
+    if (isRegister(type) || type == NiFpgaEx_ResourceType_Any) {
         // keep track of what we find
         bool found              = false;
         NiFpgaEx_Register local = 0;
@@ -226,8 +226,9 @@ void Session::findResource(const char* const name,
             return;
         }
     }
+
     // handle FIFOs
-    else if (isDmaFifo(type)) {
+    if (isDmaFifo(type) || type == NiFpgaEx_ResourceType_Any) {
         // TODO: support searching for P2P FIFOs instead of just these DMA FIFOs?
         for (auto it = bitfile->getFifos().cbegin(), end = bitfile->getFifos().cend();
              it != end;
@@ -239,8 +240,9 @@ void Session::findResource(const char* const name,
             }
         }
     }
+
     // no such resource type
-    else
+    if (!isRegister(type) && !isDmaFifo(type) && type != NiFpgaEx_ResourceType_Any)
         NIRIO_THROW(InvalidParameterException());
 
     // if we got this far, we didn't find their resource
