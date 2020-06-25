@@ -81,10 +81,8 @@ void Session::close(const bool resetIfLastSession)
 {
     // optionally tell the kernel to reset if last session
     if (resetIfLastSession) {
-        // "2" means "only if there aren't multiple sessions opened"
         try {
-            // TODO auchter: see comments in kernel driver about this
-            resetFile.write(2);
+            boardFile.ioctl(NIRIO_IOC_RESET_ON_LAST_REF);
         } catch (const FpgaBusyFpgaInterfaceCApiException&) {
             // we ignore when reset didn't happen due to multiple sessions
         }
