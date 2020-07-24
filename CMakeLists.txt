@@ -24,7 +24,9 @@ add_library(nifpga SHARED
     src/libb64/cdecode.cpp
 )
 
-set_target_properties(nifpga PROPERTIES CXX_VISIBILITY_PRESET hidden)
+set_target_properties(nifpga PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    SOVERSION 1)
 
 if(ENABLE_VALGRIND)
     target_compile_definitions(nifpga PRIVATE ENABLE_VALGRIND)
