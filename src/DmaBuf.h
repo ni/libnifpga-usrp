@@ -13,7 +13,7 @@ namespace nirio {
 class DmaBuf
 {
 public:
-    static DmaBuf* allocate(size_t size, bool hostToTarget, const char* heap = "system")
+    static DmaBuf* allocate(size_t size, const char* heap = "system")
     {
         DeviceFile heapFile(joinPath("/dev/dma_heap", heap), DeviceFile::ReadWrite);
         struct dma_heap_allocation_data arg;
@@ -25,7 +25,7 @@ public:
 
         heapFile.ioctl(DMA_HEAP_IOCTL_ALLOC, &arg);
 
-        return new DmaBuf(arg.fd, size, hostToTarget);
+        return new DmaBuf(arg.fd, size);
     }
 
     volatile void* getPointer()
@@ -42,41 +42,21 @@ public:
         return size;
     }
 
-    void beginCpuAccess()
-    {
-        syncBuf(true);
-    }
-
-    void endCpuAccess()
-    {
-        syncBuf(false);
-    }
-
     int getDescriptor() const
     {
         return bufFile.getDescriptor();
     }
 
 private:
-    explicit DmaBuf(int descriptor, size_t size, bool hostToTarget)
+    explicit DmaBuf(int descriptor, size_t size)
         : bufFile(descriptor, DeviceFile::ReadWrite)
         , size(size)
-        , hostToTarget(hostToTarget)
         , buffer(NULL)
     {
     }
 
-    void syncBuf(bool start)
-    {
-        struct dma_buf_sync arg;
-        arg.flags = hostToTarget ? DMA_BUF_SYNC_WRITE : DMA_BUF_SYNC_READ;
-        arg.flags |= start ? DMA_BUF_SYNC_START : DMA_BUF_SYNC_END;
-        bufFile.ioctl(DMA_BUF_IOCTL_SYNC, &arg);
-    }
-
     DeviceFile bufFile;
     const size_t size;
-    const bool hostToTarget;
     volatile void* buffer;
 };
 

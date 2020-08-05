@@ -187,7 +187,7 @@ void Fifo::configure(const size_t requestedDepth, size_t* const actualDepth)
                 hostToTarget ? DeviceFile::WriteOnly : DeviceFile::ReadOnly,
                 errnoMap));
 
-        dmaBuf.reset(DmaBuf::allocate(actualSize, hostToTarget, "system"));
+        dmaBuf.reset(DmaBuf::allocate(actualSize, "system"));
         // set the buffer in the kernel
         setBuffer();
         // if everything's okay, remember the new sizes
@@ -270,8 +270,6 @@ void Fifo::release(const size_t elements)
     if (elements > acquired)
         NIRIO_THROW(BadReadWriteCountException());
 
-    dmaBuf->endCpuAccess();
-
     // just pass it on, assuming kernel will error if wrong
     try {
         uint64_t elementsU64 = elements;
@@ -322,8 +320,6 @@ void Fifo::acquireWithWait(const size_t elementsRequested,
         start();
         file->ioctl(NIRIO_IOC_FIFO_ACQUIRE, &fifo_acq);
     }
-
-    dmaBuf->beginCpuAccess();
 
     if (elementsRemaining)
         *elementsRemaining = fifo_acq.available;
