@@ -65,6 +65,8 @@ static auto gen_rio_node(const nirio::Bitfile& bitfile)
     if (bitfile.isAutoRunWhenDownloaded())
         rio->add_property("ni,run-when-loaded");
 
+    rio->add_property("dma-coherent");
+
     // TODO: Reconsider this. The InChWORM IO space is located at 0x40000,
     // which really means that all LVFPGA registers are referenced to this
     // address.  Perhaps the top-level device tree entry should be the
