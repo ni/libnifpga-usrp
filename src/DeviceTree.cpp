@@ -67,6 +67,9 @@ static auto gen_rio_node(const nirio::Bitfile& bitfile)
 
     rio->add_property("dma-coherent");
 
+    rio->add_property_phandle("interrupt-parent", "gic");
+    rio->add_property("interrupts", {0, 89, 4});
+
     // TODO: Reconsider this. The InChWORM IO space is located at 0x40000,
     // which really means that all LVFPGA registers are referenced to this
     // address.  Perhaps the top-level device tree entry should be the
