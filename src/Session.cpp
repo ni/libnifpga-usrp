@@ -72,7 +72,8 @@ Session::Session(std::unique_ptr<Bitfile> bitfile_, const std::string& device)
 
 void Session::createBoardFile()
 {
-    boardFile.reset(new DeviceFile(DeviceFile::getCdevPath(device), DeviceFile::ReadWrite, alreadyErrnoMap));
+    boardFile.reset(new DeviceFile(
+        DeviceFile::getCdevPath(device), DeviceFile::ReadWrite, alreadyErrnoMap));
     boardFile->mapMemory(fpgaAddressSpaceSize);
 }
 
@@ -247,47 +248,37 @@ void Session::findResource(const char* const name,
     NIRIO_THROW(ResourceNotFoundException());
 }
 
-void Session::acknowledgeIrqs(uint32_t irqs)
+void Session::reserveIrqContext(void** ctx)
 {
-    SysfsFile(device, "irq_status").write(irqs);
+    boardFile->ioctl(NIRIO_IOC_IRQ_CTX_ALLOC, ctx);
 }
 
-void Session::waitOnIrqs(
-    uint32_t irqs, uint32_t timeout, uint32_t* const irqsAsserted, bool* timedOut)
+void Session::unreserveIrqContext(void* ctx)
 {
-    SysfsFile(device, "irq_mask").write(irqs);
-    DeviceFile irqStatus(
-        std::string("/sys/class/nirio/") + device + "/irq_status", DeviceFile::ReadOnly);
+    boardFile->ioctl(NIRIO_IOC_IRQ_CTX_FREE, &ctx);
+}
 
-    auto asserted = readU32Hex(irqStatus);
+void Session::acknowledgeIrqs(uint32_t irqs)
+{
+    boardFile->ioctl(NIRIO_IOC_IRQ_ACK, &irqs);
+}
 
-    if (!timeout || (asserted & irqs)) {
-        *timedOut     = false;
-        *irqsAsserted = asserted & irqs;
-        return;
-    }
+void Session::waitOnIrqs(void* ctx,
+    uint32_t irqs,
+    uint32_t timeout,
+    uint32_t* const irqsAsserted,
+    bool* timedOut)
+{
+    struct ioctl_nirio_irq_wait wait;
 
-    struct pollfd fds;
+    wait.ctx        = (uint32_t)(reinterpret_cast<uint64_t>(ctx) & 0xFFFFFFFF);
+    wait.mask       = irqs;
+    wait.timeout_ms = timeout;
 
-    fds.fd     = irqStatus.getDescriptor();
-    fds.events = POLLPRI;
+    boardFile->ioctl(NIRIO_IOC_IRQ_WAIT, &wait);
 
-    Timer timer(timeout);
-
-    // Loop, since poll could return successfully signaling the assertion of an
-    // IRQ that's not one we particularly care about.
-    do {
-        const int pollErr = ::poll(&fds, 1, timer.getRemaining());
-        if (pollErr == -1)
-            ErrnoMap::instance.throwErrno(errno);
-
-        irqStatus.seek(0, SEEK_SET);
-        *irqsAsserted = readU32Hex(irqStatus) & irqs;
-        if (*irqsAsserted)
-            return;
-    } while (!timer.isTimedOut());
-
-    *timedOut = true;
+    *irqsAsserted = wait.asserted;
+    *timedOut     = !!wait.timed_out;
 }
 
 void Session::configureFifo(

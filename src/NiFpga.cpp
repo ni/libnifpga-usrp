@@ -106,12 +106,12 @@ Session& getSession(NiFpga_Session session)
     return sessionManager.getSession(session);
 }
 
-void download(const nirio::Bitfile &bitfile)
+void download(const nirio::Bitfile& bitfile)
 {
     const auto bitfileSignature = bitfile.getSignature();
-    const std::string fwPath = "/lib/firmware";
-    const auto fpgaPath      = joinPath(fwPath, bitfileSignature + ".bin");
-    const auto dtsPath       = joinPath(fwPath, bitfileSignature + ".dts");
+    const std::string fwPath    = "/lib/firmware";
+    const auto fpgaPath         = joinPath(fwPath, bitfileSignature + ".bin");
+    const auto dtsPath          = joinPath(fwPath, bitfileSignature + ".dts");
 
     // write .dts and .bin to some location
     if (!exists(fpgaPath)) {
@@ -459,17 +459,25 @@ NIFPGA_FOR_EACH_SCALAR(NIFPGA_DEFINE_WRITE_ARRAY)
 NiFpga_Status NiFpga_ReserveIrqContext(
     const NiFpga_Session session, NiFpga_IrqContext* const context)
 {
-    UNUSED(session);
-    UNUSED(context);
-    return NiFpga_Status_Success;
+    Status status;
+    try {
+        auto& sessionObject = getSession(session);
+        sessionObject.reserveIrqContext(context);
+    }
+    CATCH_ALL_AND_MERGE_STATUS(status)
+    return status;
 }
 
 NiFpga_Status NiFpga_UnreserveIrqContext(
     const NiFpga_Session session, const NiFpga_IrqContext context)
 {
-    UNUSED(session);
-    UNUSED(context);
-    return NiFpga_Status_Success;
+    Status status;
+    try {
+        auto& sessionObject = getSession(session);
+        sessionObject.unreserveIrqContext(context);
+    }
+    CATCH_ALL_AND_MERGE_STATUS(status)
+    return status;
 }
 
 NiFpga_Status NiFpga_WaitOnIrqs(const NiFpga_Session session,
@@ -479,12 +487,11 @@ NiFpga_Status NiFpga_WaitOnIrqs(const NiFpga_Session session,
     uint32_t* const irqsAsserted,
     NiFpga_Bool* const timedOut)
 {
-    UNUSED(context);
     Status status;
     try {
         auto& sessionObject = getSession(session);
         bool timedOut_;
-        sessionObject.waitOnIrqs(irqs, timeout, irqsAsserted, &timedOut_);
+        sessionObject.waitOnIrqs(context, irqs, timeout, irqsAsserted, &timedOut_);
         *timedOut = timedOut_;
     }
     CATCH_ALL_AND_MERGE_STATUS(status)

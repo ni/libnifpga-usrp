@@ -77,10 +77,17 @@ public:
     void writeArray(
         NiFpgaEx_RegisterArray reg, const typename T::CType* values, size_t count) const;
 
+    void reserveIrqContext(void** ctx);
+
+    void unreserveIrqContext(void* ctx);
+
     void acknowledgeIrqs(uint32_t irqs);
 
-    void waitOnIrqs(
-        uint32_t irqs, uint32_t timeout, uint32_t* const irqsAsserted, bool* timedOut);
+    void waitOnIrqs(void* ctx,
+        uint32_t irqs,
+        uint32_t timeout,
+        uint32_t* const irqsAsserted,
+        bool* timedOut);
 
     void configureFifo(NiFpgaEx_DmaFifo fifo, size_t requestedDepth, size_t* actualDepth);
 
