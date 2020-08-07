@@ -166,6 +166,12 @@ Bitfile::Bitfile(const std::string& path)
                     controlRegister = offset;
                 else if (name == "DiagramReset")
                     resetRegister = offset;
+                else if (name == "InterruptEnable")
+                    irqEnable = offset;
+                else if (name == "InterruptMask")
+                    irqMask = offset;
+                else if (name == "InterruptStatus")
+                    irqStatus = offset;
                 // ignore the rest
             }
             // remember all supported non-internal registers for later
@@ -397,6 +403,21 @@ NiFpgaEx_Register Bitfile::getControlRegister() const
 NiFpgaEx_Register Bitfile::getResetRegister() const
 {
     return resetRegister;
+}
+
+NiFpgaEx_Register Bitfile::getIrqEnableRegister() const
+{
+    return irqEnable;
+}
+
+NiFpgaEx_Register Bitfile::getIrqMaskRegister() const
+{
+    return irqMask;
+}
+
+NiFpgaEx_Register Bitfile::getIrqStatusRegister() const
+{
+    return irqStatus;
 }
 
 bool Bitfile::isFifosSupportClear() const

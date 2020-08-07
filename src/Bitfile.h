@@ -47,6 +47,12 @@ public:
 
     NiFpgaEx_Register getResetRegister() const;
 
+    NiFpgaEx_Register getIrqEnableRegister() const;
+
+    NiFpgaEx_Register getIrqMaskRegister() const;
+
+    NiFpgaEx_Register getIrqStatusRegister() const;
+
     bool isFifosSupportClear() const;
 
     bool isFifosSupportBridgeFlush() const;
@@ -70,6 +76,9 @@ private:
     NiFpgaEx_Register signatureRegister;
     NiFpgaEx_Register controlRegister;
     NiFpgaEx_Register resetRegister;
+    NiFpgaEx_Register irqEnable;
+    NiFpgaEx_Register irqMask;
+    NiFpgaEx_Register irqStatus;
     bool fifosSupportClear;
     bool fifosSupportBridgeFlush;
     bool resetAutoClears;
