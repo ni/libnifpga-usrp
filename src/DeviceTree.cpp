@@ -56,6 +56,9 @@ static auto gen_rio_node(const nirio::Bitfile& bitfile)
     rio->add_property("control-offset", bitfile.getControlRegister());
     rio->add_property("signature-offset", bitfile.getSignatureRegister());
     rio->add_property("reset-offset", bitfile.getResetRegister());
+    rio->add_property("irq-enable-offset", bitfile.getIrqEnableRegister());
+    rio->add_property("irq-mask-offset", bitfile.getIrqMaskRegister());
+    rio->add_property("irq-status-offset", bitfile.getIrqStatusRegister());
 
     rio->add_property("reg", {upper(base), lower(base), upper(size), lower(size)});
 
