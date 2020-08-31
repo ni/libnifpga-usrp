@@ -151,7 +151,7 @@ NiFpga_Status NiFpga_Open(const char* const bitfilePath,
     if (!session || !bitfilePath || !resource)
         return NiFpga_Status_InvalidParameter;
     //  only supported attributes for now
-    if (attribute != 0 && attribute != NiFpga_OpenAttribute_NoRun)
+    if (attribute & ~(NiFpga_OpenAttribute_NoRun | NiFpga_OpenAttribute_NoSignatureCheck))
         return NiFpga_Status_InvalidParameter;
 
     // wrap all code that might throw in a big safety net
@@ -176,7 +176,8 @@ NiFpga_Status NiFpga_Open(const char* const bitfilePath,
         std::unique_ptr<Session> newSession(new Session(std::move(bitfile), resource));
 
         // ensure signature matches unless they didn't pass one
-        if (signature && signature != newSession->getBitfile().getSignature())
+        if (!(attribute & NiFpga_OpenAttribute_NoSignatureCheck)
+            && (signature && signature != newSession->getBitfile().getSignature()))
             NIRIO_THROW(SignatureMismatchException());
         // Decide whether to run the FPGA. First, if they passed NoRun, we won't.
         // But if they didn't, we have to decide whether it would've run itself.

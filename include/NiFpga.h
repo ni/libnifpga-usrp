@@ -22,8 +22,9 @@
 /*
  * Determine platform details.
  */
-#if defined(__linux__) || defined(__linux) || defined(linux) || defined(__gnu_linux__)
-#    define NiFpga_Linux 1
+#if defined(__linux__) || defined(__linux) || defined(linux) ||                \
+    defined(__gnu_linux__)
+#define NiFpga_Linux 1
 #else
 #error Unsupported platform. This version of the FPGA Interface C API \
           only supports Linux.
@@ -33,28 +34,28 @@
  * Determine compliance with different C/C++ language standards.
  */
 #if defined(__cplusplus)
-#    define NiFpga_Cpp 1
-#    if __cplusplus >= 199707L
-#        define NiFpga_Cpp98 1
-#        if __cplusplus >= 201103L
-#            define NiFpga_Cpp11 1
-#        endif
-#    endif
+#define NiFpga_Cpp 1
+#if __cplusplus >= 199707L
+#define NiFpga_Cpp98 1
+#if __cplusplus >= 201103L
+#define NiFpga_Cpp11 1
+#endif
+#endif
 #endif
 #if defined(__STDC__)
-#    define NiFpga_C89 1
-#    if defined(__STDC_VERSION__)
-#        define NiFpga_C90 1
-#        if __STDC_VERSION__ >= 199409L
-#            define NiFpga_C94 1
-#            if __STDC_VERSION__ >= 199901L
-#                define NiFpga_C99 1
-#                if __STDC_VERSION__ >= 201112L
-#                    define NiFpga_C11 1
-#                endif
-#            endif
-#        endif
-#    endif
+#define NiFpga_C89 1
+#if defined(__STDC_VERSION__)
+#define NiFpga_C90 1
+#if __STDC_VERSION__ >= 199409L
+#define NiFpga_C94 1
+#if __STDC_VERSION__ >= 199901L
+#define NiFpga_C99 1
+#if __STDC_VERSION__ >= 201112L
+#define NiFpga_C11 1
+#endif
+#endif
+#endif
+#endif
 #endif
 
 /*
@@ -62,7 +63,8 @@
  */
 #if __GNUC__ >= 4
 /* Allows for "#if NiFpga_Gcc > 40302" to test for version 4.3.2. */
-#    define NiFpga_Gcc (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ * 1)
+#define NiFpga_Gcc                                                             \
+  (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ * 1)
 #else
 #error Unsupported compiler. This version of the FPGA Interface C API only \
           supports GCC 4.0 and greater.
@@ -259,13 +261,15 @@ static const NiFpga_Status NiFpga_Status_FpgaBusyEmulation = -61204;
  * LabVIEW FPGA does not support the Reset method for bitfiles that allow
  * removal of implicit enable signals in single-cycle Timed Loops.
  */
-static const NiFpga_Status NiFpga_Status_ResetCalledWithImplicitEnableRemoval = -61211;
+static const NiFpga_Status NiFpga_Status_ResetCalledWithImplicitEnableRemoval =
+    -61211;
 
 /**
  * LabVIEW FPGA does not support the Abort method for bitfiles that allow
  * removal of implicit enable signals in single-cycle Timed Loops.
  */
-static const NiFpga_Status NiFpga_Status_AbortCalledWithImplicitEnableRemoval = -61212;
+static const NiFpga_Status NiFpga_Status_AbortCalledWithImplicitEnableRemoval =
+    -61212;
 
 /**
  * LabVIEW FPGA does not support Close and Reset if Last Reference for bitfiles
@@ -273,22 +277,23 @@ static const NiFpga_Status NiFpga_Status_AbortCalledWithImplicitEnableRemoval = 
  * Pass the NiFpga_CloseAttribute_NoResetIfLastSession attribute to NiFpga_Close
  * instead of 0.
  */
-static const NiFpga_Status NiFpga_Status_CloseAndResetCalledWithImplicitEnableRemoval =
-    -61213;
+static const NiFpga_Status
+    NiFpga_Status_CloseAndResetCalledWithImplicitEnableRemoval = -61213;
 
 /**
  * For bitfiles that allow removal of implicit enable signals in single-cycle
  * Timed Loops, LabVIEW FPGA does not support this method prior to running the
  * bitfile.
  */
-static const NiFpga_Status NiFpga_Status_ImplicitEnableRemovalButNotYetRun = -61214;
+static const NiFpga_Status NiFpga_Status_ImplicitEnableRemovalButNotYetRun =
+    -61214;
 
 /**
  * Bitfiles that allow removal of implicit enable signals in single-cycle Timed
  * Loops can run only once. Download the bitfile again before re-running the VI.
  */
-static const NiFpga_Status NiFpga_Status_RunAfterStoppedCalledWithImplicitEnableRemoval =
-    -61215;
+static const NiFpga_Status
+    NiFpga_Status_RunAfterStoppedCalledWithImplicitEnableRemoval = -61215;
 
 /**
  * A gated clock has violated the handshaking protocol. If you are using
@@ -296,7 +301,8 @@ static const NiFpga_Status NiFpga_Status_RunAfterStoppedCalledWithImplicitEnable
  * protocol. If you are generating your clocks internally, please contact
  * National Instruments Technical Support.
  */
-static const NiFpga_Status NiFpga_Status_GatedClockHandshakingViolation = -61216;
+static const NiFpga_Status NiFpga_Status_GatedClockHandshakingViolation =
+    -61216;
 
 /**
  * A session cannot be closed, reset, nor can a bitfile be downloaded while
@@ -312,7 +318,8 @@ static const NiFpga_Status NiFpga_Status_RegionsOutstandingForSession = -61217;
  * fewer unacquired elements left in the FIFO than are being requested. Release
  * some acquired elements before acquiring more elements.
  */
-static const NiFpga_Status NiFpga_Status_ElementsNotPermissibleToBeAcquired = -61219;
+static const NiFpga_Status NiFpga_Status_ElementsNotPermissibleToBeAcquired =
+    -61219;
 
 /**
  * An unexpected internal error occurred.
@@ -444,9 +451,8 @@ static const NiFpga_Status NiFpga_Status_OutOfHandles = -63198;
  * @param status status to check for an error
  * @return whether the status was an error
  */
-static NiFpga_Inline NiFpga_Bool NiFpga_IsError(const NiFpga_Status status)
-{
-    return status < NiFpga_Status_Success;
+static NiFpga_Inline NiFpga_Bool NiFpga_IsError(const NiFpga_Status status) {
+  return status < NiFpga_Status_Success;
 }
 
 /**
@@ -455,9 +461,8 @@ static NiFpga_Inline NiFpga_Bool NiFpga_IsError(const NiFpga_Status status)
  * @param status status to check for an error
  * @return whether the status was a success or warning
  */
-static NiFpga_Inline NiFpga_Bool NiFpga_IsNotError(const NiFpga_Status status)
-{
-    return status >= NiFpga_Status_Success;
+static NiFpga_Inline NiFpga_Bool NiFpga_IsNotError(const NiFpga_Status status) {
+  return status >= NiFpga_Status_Success;
 }
 
 /**
@@ -471,15 +476,14 @@ static NiFpga_Inline NiFpga_Bool NiFpga_IsNotError(const NiFpga_Status status)
  * @param newStatus new status value that may be set
  * @return the resulting status
  */
-static NiFpga_Inline NiFpga_Status NiFpga_MergeStatus(
-    NiFpga_Status* const status, const NiFpga_Status newStatus)
-{
-    if (!status)
-        return NiFpga_Status_InvalidParameter;
-    if (NiFpga_IsNotError(*status)
-        && (*status == NiFpga_Status_Success || NiFpga_IsError(newStatus)))
-        *status = newStatus;
-    return *status;
+static NiFpga_Inline NiFpga_Status
+NiFpga_MergeStatus(NiFpga_Status *const status, const NiFpga_Status newStatus) {
+  if (!status)
+    return NiFpga_Status_InvalidParameter;
+  if (NiFpga_IsNotError(*status) &&
+      (*status == NiFpga_Status_Success || NiFpga_IsError(newStatus)))
+    *status = newStatus;
+  return *status;
 }
 
 /**
@@ -500,9 +504,9 @@ static NiFpga_Inline NiFpga_Status NiFpga_MergeStatus(
  * @param status status to check for an error
  * @param expression expression to call if the incoming status is not an error
  */
-#define NiFpga_IfIsNotError(status, expression) \
-    if (NiFpga_IsNotError(status))              \
-        NiFpga_MergeStatus(&status, (expression));
+#define NiFpga_IfIsNotError(status, expression)                                \
+  if (NiFpga_IsNotError(status))                                               \
+    NiFpga_MergeStatus(&status, (expression));
 
 /**
  * Deprecated. Neither NiFpga_Initialize nor NiFpga_Finalize are required
@@ -512,9 +516,8 @@ static NiFpga_Inline NiFpga_Status NiFpga_MergeStatus(
  */
 static NiFpga_Status NiFpga_Initialize(void) __attribute__((deprecated));
 
-static NiFpga_Inline NiFpga_Status NiFpga_Initialize(void)
-{
-    return NiFpga_Status_Success;
+static NiFpga_Inline NiFpga_Status NiFpga_Initialize(void) {
+  return NiFpga_Status_Success;
 }
 
 /**
@@ -525,9 +528,8 @@ static NiFpga_Inline NiFpga_Status NiFpga_Initialize(void)
  */
 static NiFpga_Status NiFpga_Finalize(void) __attribute__((deprecated));
 
-static NiFpga_Inline NiFpga_Status NiFpga_Finalize(void)
-{
-    return NiFpga_Status_Success;
+static NiFpga_Inline NiFpga_Status NiFpga_Finalize(void) {
+  return NiFpga_Status_Success;
 }
 
 /**
@@ -538,7 +540,10 @@ typedef uint32_t NiFpga_Session;
 /**
  * Attributes that NiFpga_Open accepts.
  */
-typedef enum { NiFpga_OpenAttribute_NoRun = 1 } NiFpga_OpenAttribute;
+typedef enum {
+  NiFpga_OpenAttribute_NoRun = 1,
+  NiFpga_OpenAttribute_NoSignatureCheck = 1U << 31,
+} NiFpga_OpenAttribute;
 
 /**
  * Opens a session to the FPGA. This call ensures that the contents of the
@@ -567,16 +572,16 @@ typedef enum { NiFpga_OpenAttribute_NoRun = 1 } NiFpga_OpenAttribute;
  *                longer needed
  * @return result of the call
  */
-NiFpga_Status NiFpga_Open(const char* bitfile,
-    const char* signature,
-    const char* resource,
-    uint32_t attribute,
-    NiFpga_Session* session);
+NiFpga_Status NiFpga_Open(const char *bitfile, const char *signature,
+                          const char *resource, uint32_t attribute,
+                          NiFpga_Session *session);
 
 /**
  * Attributes that NiFpga_Close accepts.
  */
-typedef enum { NiFpga_CloseAttribute_NoResetIfLastSession = 1 } NiFpga_CloseAttribute;
+typedef enum {
+  NiFpga_CloseAttribute_NoResetIfLastSession = 1
+} NiFpga_CloseAttribute;
 
 /**
  * Closes the session to the FPGA. The FPGA resets unless either another session
@@ -694,76 +699,77 @@ typedef NiFpgaEx_HostToTargetFifo NiFpgaEx_HostToTargetFifoDbl;
 typedef NiFpgaEx_Resource NiFpgaEx_PeerToPeerFifo;
 
 /**
- * All possible FPGA resource types that can be found with NiFpgaEx_FindResource.
+ * All possible FPGA resource types that can be found with
+ * NiFpgaEx_FindResource.
  */
 typedef enum {
-    NiFpgaEx_ResourceType_IndicatorBool        = 0,
-    NiFpgaEx_ResourceType_IndicatorI8          = 1,
-    NiFpgaEx_ResourceType_IndicatorU8          = 2,
-    NiFpgaEx_ResourceType_IndicatorI16         = 3,
-    NiFpgaEx_ResourceType_IndicatorU16         = 4,
-    NiFpgaEx_ResourceType_IndicatorI32         = 5,
-    NiFpgaEx_ResourceType_IndicatorU32         = 6,
-    NiFpgaEx_ResourceType_IndicatorI64         = 7,
-    NiFpgaEx_ResourceType_IndicatorU64         = 8,
-    NiFpgaEx_ResourceType_ControlBool          = 9,
-    NiFpgaEx_ResourceType_ControlI8            = 10,
-    NiFpgaEx_ResourceType_ControlU8            = 11,
-    NiFpgaEx_ResourceType_ControlI16           = 12,
-    NiFpgaEx_ResourceType_ControlU16           = 13,
-    NiFpgaEx_ResourceType_ControlI32           = 14,
-    NiFpgaEx_ResourceType_ControlU32           = 15,
-    NiFpgaEx_ResourceType_ControlI64           = 16,
-    NiFpgaEx_ResourceType_ControlU64           = 17,
-    NiFpgaEx_ResourceType_IndicatorArrayBool   = 18,
-    NiFpgaEx_ResourceType_IndicatorArrayI8     = 19,
-    NiFpgaEx_ResourceType_IndicatorArrayU8     = 20,
-    NiFpgaEx_ResourceType_IndicatorArrayI16    = 21,
-    NiFpgaEx_ResourceType_IndicatorArrayU16    = 22,
-    NiFpgaEx_ResourceType_IndicatorArrayI32    = 23,
-    NiFpgaEx_ResourceType_IndicatorArrayU32    = 24,
-    NiFpgaEx_ResourceType_IndicatorArrayI64    = 25,
-    NiFpgaEx_ResourceType_IndicatorArrayU64    = 26,
-    NiFpgaEx_ResourceType_ControlArrayBool     = 27,
-    NiFpgaEx_ResourceType_ControlArrayI8       = 28,
-    NiFpgaEx_ResourceType_ControlArrayU8       = 29,
-    NiFpgaEx_ResourceType_ControlArrayI16      = 30,
-    NiFpgaEx_ResourceType_ControlArrayU16      = 31,
-    NiFpgaEx_ResourceType_ControlArrayI32      = 32,
-    NiFpgaEx_ResourceType_ControlArrayU32      = 33,
-    NiFpgaEx_ResourceType_ControlArrayI64      = 34,
-    NiFpgaEx_ResourceType_ControlArrayU64      = 35,
-    NiFpgaEx_ResourceType_TargetToHostFifoBool = 36,
-    NiFpgaEx_ResourceType_TargetToHostFifoI8   = 37,
-    NiFpgaEx_ResourceType_TargetToHostFifoU8   = 38,
-    NiFpgaEx_ResourceType_TargetToHostFifoI16  = 39,
-    NiFpgaEx_ResourceType_TargetToHostFifoU16  = 40,
-    NiFpgaEx_ResourceType_TargetToHostFifoI32  = 41,
-    NiFpgaEx_ResourceType_TargetToHostFifoU32  = 42,
-    NiFpgaEx_ResourceType_TargetToHostFifoI64  = 43,
-    NiFpgaEx_ResourceType_TargetToHostFifoU64  = 44,
-    NiFpgaEx_ResourceType_HostToTargetFifoBool = 45,
-    NiFpgaEx_ResourceType_HostToTargetFifoI8   = 46,
-    NiFpgaEx_ResourceType_HostToTargetFifoU8   = 47,
-    NiFpgaEx_ResourceType_HostToTargetFifoI16  = 48,
-    NiFpgaEx_ResourceType_HostToTargetFifoU16  = 49,
-    NiFpgaEx_ResourceType_HostToTargetFifoI32  = 50,
-    NiFpgaEx_ResourceType_HostToTargetFifoU32  = 51,
-    NiFpgaEx_ResourceType_HostToTargetFifoI64  = 52,
-    NiFpgaEx_ResourceType_HostToTargetFifoU64  = 53,
-    NiFpgaEx_ResourceType_IndicatorSgl         = 54,
-    NiFpgaEx_ResourceType_ControlSgl           = 55,
-    NiFpgaEx_ResourceType_IndicatorArraySgl    = 56,
-    NiFpgaEx_ResourceType_ControlArraySgl      = 57,
-    NiFpgaEx_ResourceType_TargetToHostFifoSgl  = 58,
-    NiFpgaEx_ResourceType_HostToTargetFifoSgl  = 59,
-    NiFpgaEx_ResourceType_IndicatorDbl         = 60,
-    NiFpgaEx_ResourceType_ControlDbl           = 61,
-    NiFpgaEx_ResourceType_IndicatorArrayDbl    = 62,
-    NiFpgaEx_ResourceType_ControlArrayDbl      = 63,
-    NiFpgaEx_ResourceType_TargetToHostFifoDbl  = 64,
-    NiFpgaEx_ResourceType_HostToTargetFifoDbl  = 65,
-    NiFpgaEx_ResourceType_Any                  = 0xFFFFFFFF
+  NiFpgaEx_ResourceType_IndicatorBool = 0,
+  NiFpgaEx_ResourceType_IndicatorI8 = 1,
+  NiFpgaEx_ResourceType_IndicatorU8 = 2,
+  NiFpgaEx_ResourceType_IndicatorI16 = 3,
+  NiFpgaEx_ResourceType_IndicatorU16 = 4,
+  NiFpgaEx_ResourceType_IndicatorI32 = 5,
+  NiFpgaEx_ResourceType_IndicatorU32 = 6,
+  NiFpgaEx_ResourceType_IndicatorI64 = 7,
+  NiFpgaEx_ResourceType_IndicatorU64 = 8,
+  NiFpgaEx_ResourceType_ControlBool = 9,
+  NiFpgaEx_ResourceType_ControlI8 = 10,
+  NiFpgaEx_ResourceType_ControlU8 = 11,
+  NiFpgaEx_ResourceType_ControlI16 = 12,
+  NiFpgaEx_ResourceType_ControlU16 = 13,
+  NiFpgaEx_ResourceType_ControlI32 = 14,
+  NiFpgaEx_ResourceType_ControlU32 = 15,
+  NiFpgaEx_ResourceType_ControlI64 = 16,
+  NiFpgaEx_ResourceType_ControlU64 = 17,
+  NiFpgaEx_ResourceType_IndicatorArrayBool = 18,
+  NiFpgaEx_ResourceType_IndicatorArrayI8 = 19,
+  NiFpgaEx_ResourceType_IndicatorArrayU8 = 20,
+  NiFpgaEx_ResourceType_IndicatorArrayI16 = 21,
+  NiFpgaEx_ResourceType_IndicatorArrayU16 = 22,
+  NiFpgaEx_ResourceType_IndicatorArrayI32 = 23,
+  NiFpgaEx_ResourceType_IndicatorArrayU32 = 24,
+  NiFpgaEx_ResourceType_IndicatorArrayI64 = 25,
+  NiFpgaEx_ResourceType_IndicatorArrayU64 = 26,
+  NiFpgaEx_ResourceType_ControlArrayBool = 27,
+  NiFpgaEx_ResourceType_ControlArrayI8 = 28,
+  NiFpgaEx_ResourceType_ControlArrayU8 = 29,
+  NiFpgaEx_ResourceType_ControlArrayI16 = 30,
+  NiFpgaEx_ResourceType_ControlArrayU16 = 31,
+  NiFpgaEx_ResourceType_ControlArrayI32 = 32,
+  NiFpgaEx_ResourceType_ControlArrayU32 = 33,
+  NiFpgaEx_ResourceType_ControlArrayI64 = 34,
+  NiFpgaEx_ResourceType_ControlArrayU64 = 35,
+  NiFpgaEx_ResourceType_TargetToHostFifoBool = 36,
+  NiFpgaEx_ResourceType_TargetToHostFifoI8 = 37,
+  NiFpgaEx_ResourceType_TargetToHostFifoU8 = 38,
+  NiFpgaEx_ResourceType_TargetToHostFifoI16 = 39,
+  NiFpgaEx_ResourceType_TargetToHostFifoU16 = 40,
+  NiFpgaEx_ResourceType_TargetToHostFifoI32 = 41,
+  NiFpgaEx_ResourceType_TargetToHostFifoU32 = 42,
+  NiFpgaEx_ResourceType_TargetToHostFifoI64 = 43,
+  NiFpgaEx_ResourceType_TargetToHostFifoU64 = 44,
+  NiFpgaEx_ResourceType_HostToTargetFifoBool = 45,
+  NiFpgaEx_ResourceType_HostToTargetFifoI8 = 46,
+  NiFpgaEx_ResourceType_HostToTargetFifoU8 = 47,
+  NiFpgaEx_ResourceType_HostToTargetFifoI16 = 48,
+  NiFpgaEx_ResourceType_HostToTargetFifoU16 = 49,
+  NiFpgaEx_ResourceType_HostToTargetFifoI32 = 50,
+  NiFpgaEx_ResourceType_HostToTargetFifoU32 = 51,
+  NiFpgaEx_ResourceType_HostToTargetFifoI64 = 52,
+  NiFpgaEx_ResourceType_HostToTargetFifoU64 = 53,
+  NiFpgaEx_ResourceType_IndicatorSgl = 54,
+  NiFpgaEx_ResourceType_ControlSgl = 55,
+  NiFpgaEx_ResourceType_IndicatorArraySgl = 56,
+  NiFpgaEx_ResourceType_ControlArraySgl = 57,
+  NiFpgaEx_ResourceType_TargetToHostFifoSgl = 58,
+  NiFpgaEx_ResourceType_HostToTargetFifoSgl = 59,
+  NiFpgaEx_ResourceType_IndicatorDbl = 60,
+  NiFpgaEx_ResourceType_ControlDbl = 61,
+  NiFpgaEx_ResourceType_IndicatorArrayDbl = 62,
+  NiFpgaEx_ResourceType_ControlArrayDbl = 63,
+  NiFpgaEx_ResourceType_TargetToHostFifoDbl = 64,
+  NiFpgaEx_ResourceType_HostToTargetFifoDbl = 65,
+  NiFpgaEx_ResourceType_Any = 0xFFFFFFFF
 } NiFpgaEx_ResourceType;
 
 /**
@@ -777,10 +783,9 @@ typedef enum {
  * @param resource outputs the resource if it was found
  * @return result of the call
  */
-NiFpga_Status NiFpgaEx_FindResource(NiFpga_Session session,
-    const char* name,
-    NiFpgaEx_ResourceType type,
-    NiFpgaEx_Resource* resource);
+NiFpga_Status NiFpgaEx_FindResource(NiFpga_Session session, const char *name,
+                                    NiFpgaEx_ResourceType type,
+                                    NiFpgaEx_Resource *resource);
 
 /**
  * Reads a boolean value from a given indicator or control.
@@ -790,8 +795,8 @@ NiFpga_Status NiFpgaEx_FindResource(NiFpga_Session session,
  * @param value outputs the value that was read
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadBool(
-    NiFpga_Session session, NiFpgaEx_RegisterBool reg, NiFpga_Bool* value);
+NiFpga_Status NiFpga_ReadBool(NiFpga_Session session, NiFpgaEx_RegisterBool reg,
+                              NiFpga_Bool *value);
 
 /**
  * Reads a signed 8-bit integer value from a given indicator or control.
@@ -801,8 +806,8 @@ NiFpga_Status NiFpga_ReadBool(
  * @param value outputs the value that was read
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadI8(
-    NiFpga_Session session, NiFpgaEx_RegisterI8 reg, int8_t* value);
+NiFpga_Status NiFpga_ReadI8(NiFpga_Session session, NiFpgaEx_RegisterI8 reg,
+                            int8_t *value);
 
 /**
  * Reads an unsigned 8-bit integer value from a given indicator or control.
@@ -812,8 +817,8 @@ NiFpga_Status NiFpga_ReadI8(
  * @param value outputs the value that was read
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadU8(
-    NiFpga_Session session, NiFpgaEx_RegisterU8 reg, uint8_t* value);
+NiFpga_Status NiFpga_ReadU8(NiFpga_Session session, NiFpgaEx_RegisterU8 reg,
+                            uint8_t *value);
 
 /**
  * Reads a signed 16-bit integer value from a given indicator or control.
@@ -823,8 +828,8 @@ NiFpga_Status NiFpga_ReadU8(
  * @param value outputs the value that was read
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadI16(
-    NiFpga_Session session, NiFpgaEx_RegisterI16 reg, int16_t* value);
+NiFpga_Status NiFpga_ReadI16(NiFpga_Session session, NiFpgaEx_RegisterI16 reg,
+                             int16_t *value);
 
 /**
  * Reads an unsigned 16-bit integer value from a given indicator or control.
@@ -834,8 +839,8 @@ NiFpga_Status NiFpga_ReadI16(
  * @param value outputs the value that was read
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadU16(
-    NiFpga_Session session, NiFpgaEx_RegisterU16 reg, uint16_t* value);
+NiFpga_Status NiFpga_ReadU16(NiFpga_Session session, NiFpgaEx_RegisterU16 reg,
+                             uint16_t *value);
 
 /**
  * Reads a signed 32-bit integer value from a given indicator or control.
@@ -845,8 +850,8 @@ NiFpga_Status NiFpga_ReadU16(
  * @param value outputs the value that was read
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadI32(
-    NiFpga_Session session, NiFpgaEx_RegisterI32 reg, int32_t* value);
+NiFpga_Status NiFpga_ReadI32(NiFpga_Session session, NiFpgaEx_RegisterI32 reg,
+                             int32_t *value);
 
 /**
  * Reads an unsigned 32-bit integer value from a given indicator or control.
@@ -856,8 +861,8 @@ NiFpga_Status NiFpga_ReadI32(
  * @param value outputs the value that was read
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadU32(
-    NiFpga_Session session, NiFpgaEx_RegisterU32 reg, uint32_t* value);
+NiFpga_Status NiFpga_ReadU32(NiFpga_Session session, NiFpgaEx_RegisterU32 reg,
+                             uint32_t *value);
 
 /**
  * Reads a signed 64-bit integer value from a given indicator or control.
@@ -867,8 +872,8 @@ NiFpga_Status NiFpga_ReadU32(
  * @param value outputs the value that was read
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadI64(
-    NiFpga_Session session, NiFpgaEx_RegisterI64 reg, int64_t* value);
+NiFpga_Status NiFpga_ReadI64(NiFpga_Session session, NiFpgaEx_RegisterI64 reg,
+                             int64_t *value);
 
 /**
  * Reads an unsigned 64-bit integer value from a given indicator or control.
@@ -878,8 +883,8 @@ NiFpga_Status NiFpga_ReadI64(
  * @param value outputs the value that was read
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadU64(
-    NiFpga_Session session, NiFpgaEx_RegisterU64 reg, uint64_t* value);
+NiFpga_Status NiFpga_ReadU64(NiFpga_Session session, NiFpgaEx_RegisterU64 reg,
+                             uint64_t *value);
 
 /**
  * Reads an 32-bit float value from a given indicator or control.
@@ -889,8 +894,8 @@ NiFpga_Status NiFpga_ReadU64(
  * @param value outputs the value that was read
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadSgl(
-    NiFpga_Session session, NiFpgaEx_RegisterSgl reg, float* value);
+NiFpga_Status NiFpga_ReadSgl(NiFpga_Session session, NiFpgaEx_RegisterSgl reg,
+                             float *value);
 
 /**
  * Reads a 64-bit double value from a given indicator or control.
@@ -900,8 +905,8 @@ NiFpga_Status NiFpga_ReadSgl(
  * @param value outputs the value that was read
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadDbl(
-    NiFpga_Session session, NiFpgaEx_RegisterDbl reg, double* value);
+NiFpga_Status NiFpga_ReadDbl(NiFpga_Session session, NiFpgaEx_RegisterDbl reg,
+                             double *value);
 
 /**
  * Writes a boolean value to a given control or indicator.
@@ -911,8 +916,8 @@ NiFpga_Status NiFpga_ReadDbl(
  * @param value value to write
  * @return result of the call
  */
-NiFpga_Status NiFpga_WriteBool(
-    NiFpga_Session session, NiFpgaEx_RegisterBool reg, NiFpga_Bool value);
+NiFpga_Status NiFpga_WriteBool(NiFpga_Session session,
+                               NiFpgaEx_RegisterBool reg, NiFpga_Bool value);
 
 /**
  * Writes a signed 8-bit integer value to a given control or indicator.
@@ -922,8 +927,8 @@ NiFpga_Status NiFpga_WriteBool(
  * @param value value to write
  * @return result of the call
  */
-NiFpga_Status NiFpga_WriteI8(
-    NiFpga_Session session, NiFpgaEx_RegisterI8 reg, int8_t value);
+NiFpga_Status NiFpga_WriteI8(NiFpga_Session session, NiFpgaEx_RegisterI8 reg,
+                             int8_t value);
 
 /**
  * Writes an unsigned 8-bit integer value to a given control or indicator.
@@ -933,8 +938,8 @@ NiFpga_Status NiFpga_WriteI8(
  * @param value value to write
  * @return result of the call
  */
-NiFpga_Status NiFpga_WriteU8(
-    NiFpga_Session session, NiFpgaEx_RegisterU8 reg, uint8_t value);
+NiFpga_Status NiFpga_WriteU8(NiFpga_Session session, NiFpgaEx_RegisterU8 reg,
+                             uint8_t value);
 
 /**
  * Writes a signed 16-bit integer value to a given control or indicator.
@@ -944,8 +949,8 @@ NiFpga_Status NiFpga_WriteU8(
  * @param value value to write
  * @return result of the call
  */
-NiFpga_Status NiFpga_WriteI16(
-    NiFpga_Session session, NiFpgaEx_RegisterI16 reg, int16_t value);
+NiFpga_Status NiFpga_WriteI16(NiFpga_Session session, NiFpgaEx_RegisterI16 reg,
+                              int16_t value);
 
 /**
  * Writes an unsigned 16-bit integer value to a given control or indicator.
@@ -955,8 +960,8 @@ NiFpga_Status NiFpga_WriteI16(
  * @param value value to write
  * @return result of the call
  */
-NiFpga_Status NiFpga_WriteU16(
-    NiFpga_Session session, NiFpgaEx_RegisterU16 reg, uint16_t value);
+NiFpga_Status NiFpga_WriteU16(NiFpga_Session session, NiFpgaEx_RegisterU16 reg,
+                              uint16_t value);
 
 /**
  * Writes a signed 32-bit integer value to a given control or indicator.
@@ -966,8 +971,8 @@ NiFpga_Status NiFpga_WriteU16(
  * @param value value to write
  * @return result of the call
  */
-NiFpga_Status NiFpga_WriteI32(
-    NiFpga_Session session, NiFpgaEx_RegisterI32 reg, int32_t value);
+NiFpga_Status NiFpga_WriteI32(NiFpga_Session session, NiFpgaEx_RegisterI32 reg,
+                              int32_t value);
 
 /**
  * Writes an unsigned 32-bit integer value to a given control or indicator.
@@ -977,8 +982,8 @@ NiFpga_Status NiFpga_WriteI32(
  * @param value value to write
  * @return result of the call
  */
-NiFpga_Status NiFpga_WriteU32(
-    NiFpga_Session session, NiFpgaEx_RegisterU32 reg, uint32_t value);
+NiFpga_Status NiFpga_WriteU32(NiFpga_Session session, NiFpgaEx_RegisterU32 reg,
+                              uint32_t value);
 
 /**
  * Writes a signed 64-bit integer value to a given control or indicator.
@@ -988,8 +993,8 @@ NiFpga_Status NiFpga_WriteU32(
  * @param value value to write
  * @return result of the call
  */
-NiFpga_Status NiFpga_WriteI64(
-    NiFpga_Session session, NiFpgaEx_RegisterI64 reg, int64_t value);
+NiFpga_Status NiFpga_WriteI64(NiFpga_Session session, NiFpgaEx_RegisterI64 reg,
+                              int64_t value);
 
 /**
  * Writes an unsigned 64-bit integer value to a given control or indicator.
@@ -999,8 +1004,8 @@ NiFpga_Status NiFpga_WriteI64(
  * @param value value to write
  * @return result of the call
  */
-NiFpga_Status NiFpga_WriteU64(
-    NiFpga_Session session, NiFpgaEx_RegisterU64 reg, uint64_t value);
+NiFpga_Status NiFpga_WriteU64(NiFpga_Session session, NiFpgaEx_RegisterU64 reg,
+                              uint64_t value);
 
 /**
  * Writes 32-bit float value to a given control or indicator.
@@ -1010,8 +1015,8 @@ NiFpga_Status NiFpga_WriteU64(
  * @param value value to write
  * @return result of the call
  */
-NiFpga_Status NiFpga_WriteSgl(
-    NiFpga_Session session, NiFpgaEx_RegisterSgl reg, float value);
+NiFpga_Status NiFpga_WriteSgl(NiFpga_Session session, NiFpgaEx_RegisterSgl reg,
+                              float value);
 
 /**
  * Writes 64-bit double value to a given control or indicator.
@@ -1021,8 +1026,8 @@ NiFpga_Status NiFpga_WriteSgl(
  * @param value value to write
  * @return result of the call
  */
-NiFpga_Status NiFpga_WriteDbl(
-    NiFpga_Session session, NiFpgaEx_RegisterDbl reg, double value);
+NiFpga_Status NiFpga_WriteDbl(NiFpga_Session session, NiFpgaEx_RegisterDbl reg,
+                              double value);
 
 /**
  * Reads an entire array of boolean values from a given array indicator or
@@ -1038,9 +1043,8 @@ NiFpga_Status NiFpga_WriteDbl(
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadArrayBool(NiFpga_Session session,
-    NiFpgaEx_RegisterArrayBool reg,
-    NiFpga_Bool* array,
-    size_t size);
+                                   NiFpgaEx_RegisterArrayBool reg,
+                                   NiFpga_Bool *array, size_t size);
 
 /**
  * Reads an entire array of signed 8-bit integer values from a given array
@@ -1055,8 +1059,9 @@ NiFpga_Status NiFpga_ReadArrayBool(NiFpga_Session session,
  * @param size exact number of elements in the indicator or control
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadArrayI8(
-    NiFpga_Session session, NiFpgaEx_RegisterArrayI8 reg, int8_t* array, size_t size);
+NiFpga_Status NiFpga_ReadArrayI8(NiFpga_Session session,
+                                 NiFpgaEx_RegisterArrayI8 reg, int8_t *array,
+                                 size_t size);
 
 /**
  * Reads an entire array of unsigned 8-bit integer values from a given array
@@ -1071,8 +1076,9 @@ NiFpga_Status NiFpga_ReadArrayI8(
  * @param size exact number of elements in the indicator or control
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadArrayU8(
-    NiFpga_Session session, NiFpgaEx_RegisterArrayU8 reg, uint8_t* array, size_t size);
+NiFpga_Status NiFpga_ReadArrayU8(NiFpga_Session session,
+                                 NiFpgaEx_RegisterArrayU8 reg, uint8_t *array,
+                                 size_t size);
 
 /**
  * Reads an entire array of signed 16-bit integer values from a given array
@@ -1087,8 +1093,9 @@ NiFpga_Status NiFpga_ReadArrayU8(
  * @param size exact number of elements in the indicator or control
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadArrayI16(
-    NiFpga_Session session, NiFpgaEx_RegisterArrayI16 reg, int16_t* array, size_t size);
+NiFpga_Status NiFpga_ReadArrayI16(NiFpga_Session session,
+                                  NiFpgaEx_RegisterArrayI16 reg, int16_t *array,
+                                  size_t size);
 
 /**
  * Reads an entire array of unsigned 16-bit integer values from a given array
@@ -1103,8 +1110,9 @@ NiFpga_Status NiFpga_ReadArrayI16(
  * @param size exact number of elements in the indicator or control
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadArrayU16(
-    NiFpga_Session session, NiFpgaEx_RegisterArrayU16 reg, uint16_t* array, size_t size);
+NiFpga_Status NiFpga_ReadArrayU16(NiFpga_Session session,
+                                  NiFpgaEx_RegisterArrayU16 reg,
+                                  uint16_t *array, size_t size);
 
 /**
  * Reads an entire array of signed 32-bit integer values from a given array
@@ -1119,8 +1127,9 @@ NiFpga_Status NiFpga_ReadArrayU16(
  * @param size exact number of elements in the indicator or control
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadArrayI32(
-    NiFpga_Session session, NiFpgaEx_RegisterArrayI32 reg, int32_t* array, size_t size);
+NiFpga_Status NiFpga_ReadArrayI32(NiFpga_Session session,
+                                  NiFpgaEx_RegisterArrayI32 reg, int32_t *array,
+                                  size_t size);
 
 /**
  * Reads an entire array of unsigned 32-bit integer values from a given array
@@ -1135,8 +1144,9 @@ NiFpga_Status NiFpga_ReadArrayI32(
  * @param size exact number of elements in the indicator or control
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadArrayU32(
-    NiFpga_Session session, NiFpgaEx_RegisterArrayU32 reg, uint32_t* array, size_t size);
+NiFpga_Status NiFpga_ReadArrayU32(NiFpga_Session session,
+                                  NiFpgaEx_RegisterArrayU32 reg,
+                                  uint32_t *array, size_t size);
 
 /**
  * Reads an entire array of signed 64-bit integer values from a given array
@@ -1151,8 +1161,9 @@ NiFpga_Status NiFpga_ReadArrayU32(
  * @param size exact number of elements in the indicator or control
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadArrayI64(
-    NiFpga_Session session, NiFpgaEx_RegisterArrayI64 reg, int64_t* array, size_t size);
+NiFpga_Status NiFpga_ReadArrayI64(NiFpga_Session session,
+                                  NiFpgaEx_RegisterArrayI64 reg, int64_t *array,
+                                  size_t size);
 
 /**
  * Reads an entire array of unsigned 64-bit integer values from a given array
@@ -1167,8 +1178,9 @@ NiFpga_Status NiFpga_ReadArrayI64(
  * @param size exact number of elements in the indicator or control
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadArrayU64(
-    NiFpga_Session session, NiFpgaEx_RegisterArrayU64 reg, uint64_t* array, size_t size);
+NiFpga_Status NiFpga_ReadArrayU64(NiFpga_Session session,
+                                  NiFpgaEx_RegisterArrayU64 reg,
+                                  uint64_t *array, size_t size);
 
 /**
  * Reads an entire array of 32-bit float values from a given array
@@ -1183,8 +1195,9 @@ NiFpga_Status NiFpga_ReadArrayU64(
  * @param size exact number of elements in the indicator or control
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadArraySgl(
-    NiFpga_Session session, NiFpgaEx_RegisterArraySgl reg, float* array, size_t size);
+NiFpga_Status NiFpga_ReadArraySgl(NiFpga_Session session,
+                                  NiFpgaEx_RegisterArraySgl reg, float *array,
+                                  size_t size);
 
 /**
  * Reads an entire array of 64-bit double values from a given array
@@ -1199,8 +1212,9 @@ NiFpga_Status NiFpga_ReadArraySgl(
  * @param size exact number of elements in the indicator or control
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReadArrayDbl(
-    NiFpga_Session session, NiFpgaEx_RegisterArrayDbl reg, double* array, size_t size);
+NiFpga_Status NiFpga_ReadArrayDbl(NiFpga_Session session,
+                                  NiFpgaEx_RegisterArrayDbl reg, double *array,
+                                  size_t size);
 
 /**
  * Writes an entire array of boolean values to a given array control or
@@ -1216,9 +1230,8 @@ NiFpga_Status NiFpga_ReadArrayDbl(
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteArrayBool(NiFpga_Session session,
-    NiFpgaEx_RegisterArrayBool reg,
-    const NiFpga_Bool* array,
-    size_t size);
+                                    NiFpgaEx_RegisterArrayBool reg,
+                                    const NiFpga_Bool *array, size_t size);
 
 /**
  * Writes an entire array of signed 8-bit integer values to a given array
@@ -1234,9 +1247,8 @@ NiFpga_Status NiFpga_WriteArrayBool(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteArrayI8(NiFpga_Session session,
-    NiFpgaEx_RegisterArrayI8 reg,
-    const int8_t* array,
-    size_t size);
+                                  NiFpgaEx_RegisterArrayI8 reg,
+                                  const int8_t *array, size_t size);
 
 /**
  * Writes an entire array of unsigned 8-bit integer values to a given array
@@ -1252,9 +1264,8 @@ NiFpga_Status NiFpga_WriteArrayI8(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteArrayU8(NiFpga_Session session,
-    NiFpgaEx_RegisterArrayU8 reg,
-    const uint8_t* array,
-    size_t size);
+                                  NiFpgaEx_RegisterArrayU8 reg,
+                                  const uint8_t *array, size_t size);
 
 /**
  * Writes an entire array of signed 16-bit integer values to a given array
@@ -1270,9 +1281,8 @@ NiFpga_Status NiFpga_WriteArrayU8(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteArrayI16(NiFpga_Session session,
-    NiFpgaEx_RegisterArrayI16 reg,
-    const int16_t* array,
-    size_t size);
+                                   NiFpgaEx_RegisterArrayI16 reg,
+                                   const int16_t *array, size_t size);
 
 /**
  * Writes an entire array of unsigned 16-bit integer values to a given array
@@ -1288,9 +1298,8 @@ NiFpga_Status NiFpga_WriteArrayI16(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteArrayU16(NiFpga_Session session,
-    NiFpgaEx_RegisterArrayU16 reg,
-    const uint16_t* array,
-    size_t size);
+                                   NiFpgaEx_RegisterArrayU16 reg,
+                                   const uint16_t *array, size_t size);
 
 /**
  * Writes an entire array of signed 32-bit integer values to a given array
@@ -1306,9 +1315,8 @@ NiFpga_Status NiFpga_WriteArrayU16(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteArrayI32(NiFpga_Session session,
-    NiFpgaEx_RegisterArrayI32 reg,
-    const int32_t* array,
-    size_t size);
+                                   NiFpgaEx_RegisterArrayI32 reg,
+                                   const int32_t *array, size_t size);
 
 /**
  * Writes an entire array of unsigned 32-bit integer values to a given array
@@ -1324,9 +1332,8 @@ NiFpga_Status NiFpga_WriteArrayI32(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteArrayU32(NiFpga_Session session,
-    NiFpgaEx_RegisterArrayU32 reg,
-    const uint32_t* array,
-    size_t size);
+                                   NiFpgaEx_RegisterArrayU32 reg,
+                                   const uint32_t *array, size_t size);
 
 /**
  * Writes an entire array of signed 64-bit integer values to a given array
@@ -1342,9 +1349,8 @@ NiFpga_Status NiFpga_WriteArrayU32(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteArrayI64(NiFpga_Session session,
-    NiFpgaEx_RegisterArrayI64 reg,
-    const int64_t* array,
-    size_t size);
+                                   NiFpgaEx_RegisterArrayI64 reg,
+                                   const int64_t *array, size_t size);
 
 /**
  * Writes an entire array of unsigned 64-bit integer values to a given array
@@ -1360,9 +1366,8 @@ NiFpga_Status NiFpga_WriteArrayI64(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteArrayU64(NiFpga_Session session,
-    NiFpgaEx_RegisterArrayU64 reg,
-    const uint64_t* array,
-    size_t size);
+                                   NiFpgaEx_RegisterArrayU64 reg,
+                                   const uint64_t *array, size_t size);
 
 /**
  * Writes an entire array of 32-bit float values to a given array
@@ -1378,9 +1383,8 @@ NiFpga_Status NiFpga_WriteArrayU64(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteArraySgl(NiFpga_Session session,
-    NiFpgaEx_RegisterArraySgl reg,
-    const float* array,
-    size_t size);
+                                   NiFpgaEx_RegisterArraySgl reg,
+                                   const float *array, size_t size);
 
 /**
  * Writes an entire array of 64-bit double values to a given array
@@ -1396,9 +1400,8 @@ NiFpga_Status NiFpga_WriteArraySgl(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteArrayDbl(NiFpga_Session session,
-    NiFpgaEx_RegisterArrayDbl reg,
-    const double* array,
-    size_t size);
+                                   NiFpgaEx_RegisterArrayDbl reg,
+                                   const double *array, size_t size);
 
 /**
  * Enumeration of all 32 possible IRQs. Multiple IRQs can be bitwise ORed
@@ -1407,38 +1410,38 @@ NiFpga_Status NiFpga_WriteArrayDbl(NiFpga_Session session,
  *    NiFpga_Irq_3 | NiFpga_Irq_23
  */
 typedef enum {
-    NiFpga_Irq_0  = 1 << 0,
-    NiFpga_Irq_1  = 1 << 1,
-    NiFpga_Irq_2  = 1 << 2,
-    NiFpga_Irq_3  = 1 << 3,
-    NiFpga_Irq_4  = 1 << 4,
-    NiFpga_Irq_5  = 1 << 5,
-    NiFpga_Irq_6  = 1 << 6,
-    NiFpga_Irq_7  = 1 << 7,
-    NiFpga_Irq_8  = 1 << 8,
-    NiFpga_Irq_9  = 1 << 9,
-    NiFpga_Irq_10 = 1 << 10,
-    NiFpga_Irq_11 = 1 << 11,
-    NiFpga_Irq_12 = 1 << 12,
-    NiFpga_Irq_13 = 1 << 13,
-    NiFpga_Irq_14 = 1 << 14,
-    NiFpga_Irq_15 = 1 << 15,
-    NiFpga_Irq_16 = 1 << 16,
-    NiFpga_Irq_17 = 1 << 17,
-    NiFpga_Irq_18 = 1 << 18,
-    NiFpga_Irq_19 = 1 << 19,
-    NiFpga_Irq_20 = 1 << 20,
-    NiFpga_Irq_21 = 1 << 21,
-    NiFpga_Irq_22 = 1 << 22,
-    NiFpga_Irq_23 = 1 << 23,
-    NiFpga_Irq_24 = 1 << 24,
-    NiFpga_Irq_25 = 1 << 25,
-    NiFpga_Irq_26 = 1 << 26,
-    NiFpga_Irq_27 = 1 << 27,
-    NiFpga_Irq_28 = 1 << 28,
-    NiFpga_Irq_29 = 1 << 29,
-    NiFpga_Irq_30 = 1 << 30,
-    NiFpga_Irq_31 = 1U << 31
+  NiFpga_Irq_0 = 1 << 0,
+  NiFpga_Irq_1 = 1 << 1,
+  NiFpga_Irq_2 = 1 << 2,
+  NiFpga_Irq_3 = 1 << 3,
+  NiFpga_Irq_4 = 1 << 4,
+  NiFpga_Irq_5 = 1 << 5,
+  NiFpga_Irq_6 = 1 << 6,
+  NiFpga_Irq_7 = 1 << 7,
+  NiFpga_Irq_8 = 1 << 8,
+  NiFpga_Irq_9 = 1 << 9,
+  NiFpga_Irq_10 = 1 << 10,
+  NiFpga_Irq_11 = 1 << 11,
+  NiFpga_Irq_12 = 1 << 12,
+  NiFpga_Irq_13 = 1 << 13,
+  NiFpga_Irq_14 = 1 << 14,
+  NiFpga_Irq_15 = 1 << 15,
+  NiFpga_Irq_16 = 1 << 16,
+  NiFpga_Irq_17 = 1 << 17,
+  NiFpga_Irq_18 = 1 << 18,
+  NiFpga_Irq_19 = 1 << 19,
+  NiFpga_Irq_20 = 1 << 20,
+  NiFpga_Irq_21 = 1 << 21,
+  NiFpga_Irq_22 = 1 << 22,
+  NiFpga_Irq_23 = 1 << 23,
+  NiFpga_Irq_24 = 1 << 24,
+  NiFpga_Irq_25 = 1 << 25,
+  NiFpga_Irq_26 = 1 << 26,
+  NiFpga_Irq_27 = 1 << 27,
+  NiFpga_Irq_28 = 1 << 28,
+  NiFpga_Irq_29 = 1 << 29,
+  NiFpga_Irq_30 = 1 << 30,
+  NiFpga_Irq_31 = 1U << 31
 } NiFpga_Irq;
 
 /**
@@ -1449,7 +1452,7 @@ static const uint32_t NiFpga_InfiniteTimeout = 0xFFFFFFFF;
 /**
  * See NiFpga_ReserveIrqContext for more information.
  */
-typedef void* NiFpga_IrqContext;
+typedef void *NiFpga_IrqContext;
 
 /**
  * IRQ contexts are single-threaded; only one thread can wait with a particular
@@ -1463,8 +1466,8 @@ typedef void* NiFpga_IrqContext;
  * @param context outputs the IRQ context
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReserveIrqContext(
-    NiFpga_Session session, NiFpga_IrqContext* context);
+NiFpga_Status NiFpga_ReserveIrqContext(NiFpga_Session session,
+                                       NiFpga_IrqContext *context);
 
 /**
  * Unreserves an IRQ context obtained from NiFpga_ReserveIrqContext.
@@ -1473,8 +1476,8 @@ NiFpga_Status NiFpga_ReserveIrqContext(
  * @param context IRQ context to unreserve
  * @return result of the call
  */
-NiFpga_Status NiFpga_UnreserveIrqContext(
-    NiFpga_Session session, NiFpga_IrqContext context);
+NiFpga_Status NiFpga_UnreserveIrqContext(NiFpga_Session session,
+                                         NiFpga_IrqContext context);
 
 /**
  * This is a blocking function that stops the calling thread until the FPGA
@@ -1496,11 +1499,9 @@ NiFpga_Status NiFpga_UnreserveIrqContext(
  * @return result of the call
  */
 NiFpga_Status NiFpga_WaitOnIrqs(NiFpga_Session session,
-    NiFpga_IrqContext context,
-    uint32_t irqs,
-    uint32_t timeout,
-    uint32_t* irqsAsserted,
-    NiFpga_Bool* timedOut);
+                                NiFpga_IrqContext context, uint32_t irqs,
+                                uint32_t timeout, uint32_t *irqsAsserted,
+                                NiFpga_Bool *timedOut);
 
 /**
  * Acknowledges an IRQ or set of IRQs.
@@ -1522,8 +1523,8 @@ NiFpga_Status NiFpga_AcknowledgeIrqs(NiFpga_Session session, uint32_t irqs);
  *              DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_ConfigureFifo(
-    NiFpga_Session session, NiFpgaEx_DmaFifo fifo, size_t depth);
+NiFpga_Status NiFpga_ConfigureFifo(NiFpga_Session session,
+                                   NiFpgaEx_DmaFifo fifo, size_t depth);
 
 /**
  * Specifies the depth of the host memory part of the DMA FIFO. This method is
@@ -1539,9 +1540,8 @@ NiFpga_Status NiFpga_ConfigureFifo(
  * @return result of the call
  */
 NiFpga_Status NiFpga_ConfigureFifo2(NiFpga_Session session,
-    NiFpgaEx_DmaFifo fifo,
-    size_t requestedDepth,
-    size_t* actualDepth);
+                                    NiFpgaEx_DmaFifo fifo,
+                                    size_t requestedDepth, size_t *actualDepth);
 
 /**
  * Starts a FIFO. This method is optional.
@@ -1574,11 +1574,9 @@ NiFpga_Status NiFpga_StopFifo(NiFpga_Session session, NiFpgaEx_DmaFifo fifo);
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadFifoBool(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoBool fifo,
-    NiFpga_Bool* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* elementsRemaining);
+                                  NiFpgaEx_TargetToHostFifoBool fifo,
+                                  NiFpga_Bool *data, size_t numberOfElements,
+                                  uint32_t timeout, size_t *elementsRemaining);
 
 /**
  * Reads from a target-to-host FIFO of signed 8-bit integers.
@@ -1593,11 +1591,9 @@ NiFpga_Status NiFpga_ReadFifoBool(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadFifoI8(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoI8 fifo,
-    int8_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* elementsRemaining);
+                                NiFpgaEx_TargetToHostFifoI8 fifo, int8_t *data,
+                                size_t numberOfElements, uint32_t timeout,
+                                size_t *elementsRemaining);
 
 /**
  * Reads from a target-to-host FIFO of unsigned 8-bit integers.
@@ -1612,11 +1608,9 @@ NiFpga_Status NiFpga_ReadFifoI8(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadFifoU8(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoU8 fifo,
-    uint8_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* elementsRemaining);
+                                NiFpgaEx_TargetToHostFifoU8 fifo, uint8_t *data,
+                                size_t numberOfElements, uint32_t timeout,
+                                size_t *elementsRemaining);
 
 /**
  * Reads from a target-to-host FIFO of signed 16-bit integers.
@@ -1631,11 +1625,9 @@ NiFpga_Status NiFpga_ReadFifoU8(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadFifoI16(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoI16 fifo,
-    int16_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* elementsRemaining);
+                                 NiFpgaEx_TargetToHostFifoI16 fifo,
+                                 int16_t *data, size_t numberOfElements,
+                                 uint32_t timeout, size_t *elementsRemaining);
 
 /**
  * Reads from a target-to-host FIFO of unsigned 16-bit integers.
@@ -1650,11 +1642,9 @@ NiFpga_Status NiFpga_ReadFifoI16(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadFifoU16(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoU16 fifo,
-    uint16_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* elementsRemaining);
+                                 NiFpgaEx_TargetToHostFifoU16 fifo,
+                                 uint16_t *data, size_t numberOfElements,
+                                 uint32_t timeout, size_t *elementsRemaining);
 
 /**
  * Reads from a target-to-host FIFO of signed 32-bit integers.
@@ -1669,11 +1659,9 @@ NiFpga_Status NiFpga_ReadFifoU16(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadFifoI32(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoI32 fifo,
-    int32_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* elementsRemaining);
+                                 NiFpgaEx_TargetToHostFifoI32 fifo,
+                                 int32_t *data, size_t numberOfElements,
+                                 uint32_t timeout, size_t *elementsRemaining);
 
 /**
  * Reads from a target-to-host FIFO of unsigned 32-bit integers.
@@ -1688,11 +1676,9 @@ NiFpga_Status NiFpga_ReadFifoI32(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadFifoU32(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoU32 fifo,
-    uint32_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* elementsRemaining);
+                                 NiFpgaEx_TargetToHostFifoU32 fifo,
+                                 uint32_t *data, size_t numberOfElements,
+                                 uint32_t timeout, size_t *elementsRemaining);
 
 /**
  * Reads from a target-to-host FIFO of signed 64-bit integers.
@@ -1707,11 +1693,9 @@ NiFpga_Status NiFpga_ReadFifoU32(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadFifoI64(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoI64 fifo,
-    int64_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* elementsRemaining);
+                                 NiFpgaEx_TargetToHostFifoI64 fifo,
+                                 int64_t *data, size_t numberOfElements,
+                                 uint32_t timeout, size_t *elementsRemaining);
 
 /**
  * Reads from a target-to-host FIFO of unsigned 64-bit integers.
@@ -1726,11 +1710,9 @@ NiFpga_Status NiFpga_ReadFifoI64(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadFifoU64(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoU64 fifo,
-    uint64_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* elementsRemaining);
+                                 NiFpgaEx_TargetToHostFifoU64 fifo,
+                                 uint64_t *data, size_t numberOfElements,
+                                 uint32_t timeout, size_t *elementsRemaining);
 
 /**
  * Reads from a target-to-host FIFO of 32-bit floats.
@@ -1745,11 +1727,9 @@ NiFpga_Status NiFpga_ReadFifoU64(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadFifoSgl(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoSgl fifo,
-    float* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* elementsRemaining);
+                                 NiFpgaEx_TargetToHostFifoSgl fifo, float *data,
+                                 size_t numberOfElements, uint32_t timeout,
+                                 size_t *elementsRemaining);
 /**
  * Reads from a target-to-host FIFO of 64-bit doubles.
  *
@@ -1763,11 +1743,9 @@ NiFpga_Status NiFpga_ReadFifoSgl(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_ReadFifoDbl(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoDbl fifo,
-    double* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* elementsRemaining);
+                                 NiFpgaEx_TargetToHostFifoDbl fifo,
+                                 double *data, size_t numberOfElements,
+                                 uint32_t timeout, size_t *elementsRemaining);
 
 /**
  * Writes to a host-to-target FIFO of booleans.
@@ -1783,11 +1761,10 @@ NiFpga_Status NiFpga_ReadFifoDbl(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteFifoBool(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoBool fifo,
-    const NiFpga_Bool* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* emptyElementsRemaining);
+                                   NiFpgaEx_HostToTargetFifoBool fifo,
+                                   const NiFpga_Bool *data,
+                                   size_t numberOfElements, uint32_t timeout,
+                                   size_t *emptyElementsRemaining);
 
 /**
  * Writes to a host-to-target FIFO of signed 8-bit integers.
@@ -1803,11 +1780,10 @@ NiFpga_Status NiFpga_WriteFifoBool(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteFifoI8(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoI8 fifo,
-    const int8_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* emptyElementsRemaining);
+                                 NiFpgaEx_HostToTargetFifoI8 fifo,
+                                 const int8_t *data, size_t numberOfElements,
+                                 uint32_t timeout,
+                                 size_t *emptyElementsRemaining);
 
 /**
  * Writes to a host-to-target FIFO of unsigned 8-bit integers.
@@ -1823,11 +1799,10 @@ NiFpga_Status NiFpga_WriteFifoI8(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteFifoU8(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoU8 fifo,
-    const uint8_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* emptyElementsRemaining);
+                                 NiFpgaEx_HostToTargetFifoU8 fifo,
+                                 const uint8_t *data, size_t numberOfElements,
+                                 uint32_t timeout,
+                                 size_t *emptyElementsRemaining);
 
 /**
  * Writes to a host-to-target FIFO of signed 16-bit integers.
@@ -1843,11 +1818,10 @@ NiFpga_Status NiFpga_WriteFifoU8(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteFifoI16(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoI16 fifo,
-    const int16_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* emptyElementsRemaining);
+                                  NiFpgaEx_HostToTargetFifoI16 fifo,
+                                  const int16_t *data, size_t numberOfElements,
+                                  uint32_t timeout,
+                                  size_t *emptyElementsRemaining);
 
 /**
  * Writes to a host-to-target FIFO of unsigned 16-bit integers.
@@ -1863,11 +1837,10 @@ NiFpga_Status NiFpga_WriteFifoI16(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteFifoU16(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoU16 fifo,
-    const uint16_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* emptyElementsRemaining);
+                                  NiFpgaEx_HostToTargetFifoU16 fifo,
+                                  const uint16_t *data, size_t numberOfElements,
+                                  uint32_t timeout,
+                                  size_t *emptyElementsRemaining);
 
 /**
  * Writes to a host-to-target FIFO of signed 32-bit integers.
@@ -1883,11 +1856,10 @@ NiFpga_Status NiFpga_WriteFifoU16(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteFifoI32(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoI32 fifo,
-    const int32_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* emptyElementsRemaining);
+                                  NiFpgaEx_HostToTargetFifoI32 fifo,
+                                  const int32_t *data, size_t numberOfElements,
+                                  uint32_t timeout,
+                                  size_t *emptyElementsRemaining);
 
 /**
  * Writes to a host-to-target FIFO of unsigned 32-bit integers.
@@ -1903,11 +1875,10 @@ NiFpga_Status NiFpga_WriteFifoI32(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteFifoU32(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoU32 fifo,
-    const uint32_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* emptyElementsRemaining);
+                                  NiFpgaEx_HostToTargetFifoU32 fifo,
+                                  const uint32_t *data, size_t numberOfElements,
+                                  uint32_t timeout,
+                                  size_t *emptyElementsRemaining);
 
 /**
  * Writes to a host-to-target FIFO of signed 64-bit integers.
@@ -1923,11 +1894,10 @@ NiFpga_Status NiFpga_WriteFifoU32(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteFifoI64(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoI64 fifo,
-    const int64_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* emptyElementsRemaining);
+                                  NiFpgaEx_HostToTargetFifoI64 fifo,
+                                  const int64_t *data, size_t numberOfElements,
+                                  uint32_t timeout,
+                                  size_t *emptyElementsRemaining);
 
 /**
  * Writes to a host-to-target FIFO of unsigned 64-bit integers.
@@ -1943,11 +1913,10 @@ NiFpga_Status NiFpga_WriteFifoI64(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteFifoU64(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoU64 fifo,
-    const uint64_t* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* emptyElementsRemaining);
+                                  NiFpgaEx_HostToTargetFifoU64 fifo,
+                                  const uint64_t *data, size_t numberOfElements,
+                                  uint32_t timeout,
+                                  size_t *emptyElementsRemaining);
 
 /**
  * Writes to a host-to-target FIFO of 32-bit floats.
@@ -1963,11 +1932,10 @@ NiFpga_Status NiFpga_WriteFifoU64(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteFifoSgl(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoSgl fifo,
-    const float* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* emptyElementsRemaining);
+                                  NiFpgaEx_HostToTargetFifoSgl fifo,
+                                  const float *data, size_t numberOfElements,
+                                  uint32_t timeout,
+                                  size_t *emptyElementsRemaining);
 
 /**
  * Writes to a host-to-target FIFO of 64-bit doubles.
@@ -1983,11 +1951,10 @@ NiFpga_Status NiFpga_WriteFifoSgl(NiFpga_Session session,
  * @return result of the call
  */
 NiFpga_Status NiFpga_WriteFifoDbl(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoDbl fifo,
-    const double* data,
-    size_t numberOfElements,
-    uint32_t timeout,
-    size_t* emptyElementsRemaining);
+                                  NiFpgaEx_HostToTargetFifoDbl fifo,
+                                  const double *data, size_t numberOfElements,
+                                  uint32_t timeout,
+                                  size_t *emptyElementsRemaining);
 
 /**
  * Acquires elements for reading from a target-to-host FIFO of booleans.
@@ -2013,13 +1980,10 @@ NiFpga_Status NiFpga_WriteFifoDbl(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoReadElementsBool(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoBool fifo,
-    NiFpga_Bool** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoReadElementsBool(
+    NiFpga_Session session, NiFpgaEx_TargetToHostFifoBool fifo,
+    NiFpga_Bool **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for reading from a target-to-host FIFO of signed 8-bit
@@ -2046,13 +2010,10 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsBool(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoReadElementsI8(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoI8 fifo,
-    int8_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoReadElementsI8(
+    NiFpga_Session session, NiFpgaEx_TargetToHostFifoI8 fifo, int8_t **elements,
+    size_t elementsRequested, uint32_t timeout, size_t *elementsAcquired,
+    size_t *elementsRemaining);
 
 /**
  * Acquires elements for reading from a target-to-host FIFO of unsigned 8-bit
@@ -2079,13 +2040,10 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsI8(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoReadElementsU8(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoU8 fifo,
-    uint8_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoReadElementsU8(
+    NiFpga_Session session, NiFpgaEx_TargetToHostFifoU8 fifo,
+    uint8_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for reading from a target-to-host FIFO of signed 16-bit
@@ -2112,13 +2070,10 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsU8(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoReadElementsI16(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoI16 fifo,
-    int16_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoReadElementsI16(
+    NiFpga_Session session, NiFpgaEx_TargetToHostFifoI16 fifo,
+    int16_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for reading from a target-to-host FIFO of unsigned 16-bit
@@ -2145,13 +2100,10 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsI16(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoReadElementsU16(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoU16 fifo,
-    uint16_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoReadElementsU16(
+    NiFpga_Session session, NiFpgaEx_TargetToHostFifoU16 fifo,
+    uint16_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for reading from a target-to-host FIFO of signed 32-bit
@@ -2178,13 +2130,10 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsU16(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoReadElementsI32(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoI32 fifo,
-    int32_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoReadElementsI32(
+    NiFpga_Session session, NiFpgaEx_TargetToHostFifoI32 fifo,
+    int32_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for reading from a target-to-host FIFO of unsigned 32-bit
@@ -2211,13 +2160,10 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsI32(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoReadElementsU32(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoU32 fifo,
-    uint32_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoReadElementsU32(
+    NiFpga_Session session, NiFpgaEx_TargetToHostFifoU32 fifo,
+    uint32_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for reading from a target-to-host FIFO of signed 64-bit
@@ -2244,13 +2190,10 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsU32(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoReadElementsI64(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoI64 fifo,
-    int64_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoReadElementsI64(
+    NiFpga_Session session, NiFpgaEx_TargetToHostFifoI64 fifo,
+    int64_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for reading from a target-to-host FIFO of unsigned 64-bit
@@ -2277,13 +2220,10 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsI64(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoReadElementsU64(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoU64 fifo,
-    uint64_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoReadElementsU64(
+    NiFpga_Session session, NiFpgaEx_TargetToHostFifoU64 fifo,
+    uint64_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for reading from a target-to-host FIFO of 32-bit
@@ -2310,13 +2250,10 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsU64(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoReadElementsSgl(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoSgl fifo,
-    float** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoReadElementsSgl(
+    NiFpga_Session session, NiFpgaEx_TargetToHostFifoSgl fifo, float **elements,
+    size_t elementsRequested, uint32_t timeout, size_t *elementsAcquired,
+    size_t *elementsRemaining);
 
 /**
  * Acquires elements for reading from a target-to-host FIFO of 64-bit
@@ -2343,13 +2280,10 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsSgl(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoReadElementsDbl(NiFpga_Session session,
-    NiFpgaEx_TargetToHostFifoDbl fifo,
-    double** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoReadElementsDbl(
+    NiFpga_Session session, NiFpgaEx_TargetToHostFifoDbl fifo,
+    double **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for writing to a host-to-target FIFO of booleans.
@@ -2375,13 +2309,10 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsDbl(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoWriteElementsBool(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoBool fifo,
-    NiFpga_Bool** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoWriteElementsBool(
+    NiFpga_Session session, NiFpgaEx_HostToTargetFifoBool fifo,
+    NiFpga_Bool **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for writing to a host-to-target FIFO of signed 8-bit
@@ -2408,13 +2339,10 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsBool(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoWriteElementsI8(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoI8 fifo,
-    int8_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoWriteElementsI8(
+    NiFpga_Session session, NiFpgaEx_HostToTargetFifoI8 fifo, int8_t **elements,
+    size_t elementsRequested, uint32_t timeout, size_t *elementsAcquired,
+    size_t *elementsRemaining);
 
 /**
  * Acquires elements for writing to a host-to-target FIFO of unsigned 8-bit
@@ -2441,13 +2369,10 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsI8(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoWriteElementsU8(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoU8 fifo,
-    uint8_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoWriteElementsU8(
+    NiFpga_Session session, NiFpgaEx_HostToTargetFifoU8 fifo,
+    uint8_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for writing to a host-to-target FIFO of signed 16-bit
@@ -2474,13 +2399,10 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsU8(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoWriteElementsI16(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoI16 fifo,
-    int16_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoWriteElementsI16(
+    NiFpga_Session session, NiFpgaEx_HostToTargetFifoI16 fifo,
+    int16_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for writing to a host-to-target FIFO of unsigned 16-bit
@@ -2507,13 +2429,10 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsI16(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoWriteElementsU16(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoU16 fifo,
-    uint16_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoWriteElementsU16(
+    NiFpga_Session session, NiFpgaEx_HostToTargetFifoU16 fifo,
+    uint16_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for writing to a host-to-target FIFO of signed 32-bit
@@ -2540,13 +2459,10 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsU16(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoWriteElementsI32(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoI32 fifo,
-    int32_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoWriteElementsI32(
+    NiFpga_Session session, NiFpgaEx_HostToTargetFifoI32 fifo,
+    int32_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for writing to a host-to-target FIFO of unsigned 32-bit
@@ -2573,13 +2489,10 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsI32(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoWriteElementsU32(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoU32 fifo,
-    uint32_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoWriteElementsU32(
+    NiFpga_Session session, NiFpgaEx_HostToTargetFifoU32 fifo,
+    uint32_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for writing to a host-to-target FIFO of signed 64-bit
@@ -2606,13 +2519,10 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsU32(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoWriteElementsI64(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoI64 fifo,
-    int64_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoWriteElementsI64(
+    NiFpga_Session session, NiFpgaEx_HostToTargetFifoI64 fifo,
+    int64_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for writing to a host-to-target FIFO of unsigned 64-bit
@@ -2639,13 +2549,10 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsI64(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoWriteElementsU64(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoU64 fifo,
-    uint64_t** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoWriteElementsU64(
+    NiFpga_Session session, NiFpgaEx_HostToTargetFifoU64 fifo,
+    uint64_t **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Acquires elements for writing to a host-to-target FIFO of 32-bit
@@ -2672,13 +2579,10 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsU64(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoWriteElementsSgl(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoSgl fifo,
-    float** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoWriteElementsSgl(
+    NiFpga_Session session, NiFpgaEx_HostToTargetFifoSgl fifo, float **elements,
+    size_t elementsRequested, uint32_t timeout, size_t *elementsAcquired,
+    size_t *elementsRemaining);
 
 /**
  * Acquires elements for writing to a host-to-target FIFO of 64-bit
@@ -2705,13 +2609,10 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsSgl(NiFpga_Session session,
  *                          remaining in the host memory part of the DMA FIFO
  * @return result of the call
  */
-NiFpga_Status NiFpga_AcquireFifoWriteElementsDbl(NiFpga_Session session,
-    NiFpgaEx_HostToTargetFifoDbl fifo,
-    double** elements,
-    size_t elementsRequested,
-    uint32_t timeout,
-    size_t* elementsAcquired,
-    size_t* elementsRemaining);
+NiFpga_Status NiFpga_AcquireFifoWriteElementsDbl(
+    NiFpga_Session session, NiFpgaEx_HostToTargetFifoDbl fifo,
+    double **elements, size_t elementsRequested, uint32_t timeout,
+    size_t *elementsAcquired, size_t *elementsRemaining);
 
 /**
  * Releases previously acquired FIFO elements.
@@ -2726,8 +2627,9 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsDbl(NiFpga_Session session,
  * @param elements number of elements to release
  * @return result of the call
  */
-NiFpga_Status NiFpga_ReleaseFifoElements(
-    NiFpga_Session session, NiFpgaEx_DmaFifo fifo, size_t elements);
+NiFpga_Status NiFpga_ReleaseFifoElements(NiFpga_Session session,
+                                         NiFpgaEx_DmaFifo fifo,
+                                         size_t elements);
 
 /**
  * Gets an endpoint reference to a peer-to-peer FIFO.
@@ -2737,21 +2639,23 @@ NiFpga_Status NiFpga_ReleaseFifoElements(
  * @param endpoint outputs the endpoint reference
  * @return result of the call
  */
-NiFpga_Status NiFpga_GetPeerToPeerFifoEndpoint(
-    NiFpga_Session session, NiFpgaEx_PeerToPeerFifo fifo, uint32_t* endpoint);
+NiFpga_Status NiFpga_GetPeerToPeerFifoEndpoint(NiFpga_Session session,
+                                               NiFpgaEx_PeerToPeerFifo fifo,
+                                               uint32_t *endpoint);
 
 NiFpga_Status NiFpga_FindRegisterPrivate(const NiFpga_Session session,
-    const char* const registerName,
-    uint32_t expectedResourceType,
-    uint32_t* resourceOffset);
+                                         const char *const registerName,
+                                         uint32_t expectedResourceType,
+                                         uint32_t *resourceOffset);
 
 NiFpga_Status NiFpga_FindFifoPrivate(const NiFpga_Session session,
-    const char* const fifoName,
-    uint32_t expectedResourceType,
-    uint32_t* resourceOffset);
+                                     const char *const fifoName,
+                                     uint32_t expectedResourceType,
+                                     uint32_t *resourceOffset);
 
-NiFpga_Status NiFpga_GetBitfileSignature(
-    const NiFpga_Session session, uint32_t* signature, size_t* signatureSize);
+NiFpga_Status NiFpga_GetBitfileSignature(const NiFpga_Session session,
+                                         uint32_t *signature,
+                                         size_t *signatureSize);
 #if defined(NiFpga_Cpp)
 }
 #endif
