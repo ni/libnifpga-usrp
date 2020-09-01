@@ -46,8 +46,12 @@ Session::Session(std::unique_ptr<Bitfile> bitfile_, const std::string& device)
     , fpgaAddressSpaceSize(SysfsFile(device, "fpga_size").readU32())
     , baseAddressOnDevice(bitfile->getBaseAddressOnDevice())
 {
-    // TODO auchter: This should at least validate the bitfile signature
-    // against the sysfs file that contains the signature.
+    SysfsFile signatureFile(device, "signature");
+
+    // ensure this session is talking to the right stuff
+    auto runningSignature = signatureFile.readLineNoErrno();
+    if (strcasecmp(runningSignature.c_str(), bitfile->getSignature().c_str()))
+        NIRIO_THROW(SignatureMismatchException());
 
     // ensure the target class matches
     if (bitfile->getTargetClass() != "USRP-X410")
