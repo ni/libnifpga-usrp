@@ -160,6 +160,7 @@ NiFpga_Status NiFpga_Open(const char* const bitfilePath,
         auto bitfile          = std::make_unique<Bitfile>(bitfilePath);
         auto bitfileSignature = bitfile->getSignature();
         SysfsFile signatureFile(resource, "signature");
+        SysfsFile sessionCount(resource, "session_count");
 
         bool alreadyDownloaded = false;
 
@@ -169,8 +170,12 @@ NiFpga_Status NiFpga_Open(const char* const bitfilePath,
                 alreadyDownloaded = true;
         }
 
-        if (!alreadyDownloaded)
-            download(*bitfile);
+        if (!alreadyDownloaded) {
+            if (!sessionCount.exists() || sessionCount.readU32() == 0)
+                download(*bitfile);
+            else
+                NIRIO_THROW(FpgaBusyFpgaInterfaceCApiException());
+        }
 
         // create a new session object, which opens and downloads if necessary
         std::unique_ptr<Session> newSession(new Session(std::move(bitfile), resource));
