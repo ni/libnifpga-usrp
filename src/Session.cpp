@@ -46,16 +46,12 @@ Session::Session(std::unique_ptr<Bitfile> bitfile_, const std::string& device)
     , fpgaAddressSpaceSize(SysfsFile(device, "fpga_size").readU32())
     , baseAddressOnDevice(bitfile->getBaseAddressOnDevice())
 {
-// TODO auchter: This should at least validate the bitfile signature
-// against the sysfs file that contains the signature.
+    // TODO auchter: This should at least validate the bitfile signature
+    // against the sysfs file that contains the signature.
 
-// TODO auchter: Should we check targetclass against anything?
-#if 0 
     // ensure the target class matches
-    const auto modelName = getModelName(device);
-    if (modelName != bitfile.getTargetClass())
+    if (bitfile->getTargetClass() != "USRP-X410")
         NIRIO_THROW(DeviceTypeMismatchException());
-#endif
 
     createBoardFile();
 
