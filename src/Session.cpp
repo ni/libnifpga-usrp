@@ -54,7 +54,7 @@ Session::Session(std::unique_ptr<Bitfile> bitfile_, const std::string& device)
         NIRIO_THROW(SignatureMismatchException());
 
     // ensure the target class matches
-    if (bitfile->getTargetClass() != "USRP-X410")
+    if (bitfile->getTargetClass() != "USRP-X410 (Embedded)")
         NIRIO_THROW(DeviceTypeMismatchException());
 
     createBoardFile();
