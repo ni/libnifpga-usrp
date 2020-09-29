@@ -127,7 +127,9 @@ void download(const nirio::Bitfile& bitfile)
     }
 
     // invoke uhd_image_loader to load image
-    std::string cmd = "uhd_image_loader --args \"type=x4xx,addr=127.0.0.1\" --fpga-path ";
+    // TODO: drop addr= argument eventually, once uhd is updated
+    std::string cmd = "uhd_image_loader --args "
+                      "\"type=x4xx,mgmt_addr=127.0.0.1,addr=169.254.0.2\" --fpga-path ";
     cmd += fpgaPath;
     if (system(cmd.c_str())) {
         std::cerr << "call to load fpga failed: " << errno << std::endl;
