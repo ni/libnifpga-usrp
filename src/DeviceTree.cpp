@@ -107,23 +107,50 @@ static auto gen_rio_node(const nirio::Bitfile& bitfile)
         rio->add_node(std::move(node));
     }
 
+    return rio;
+}
+
+// TODO: Remove eventually, once most bitfiles are built using new style overlays
+std::string generateOldOverlay(const nirio::Bitfile& bitfile)
+{
+    using dtgen::dt_node;
+
     auto overlay = std::make_unique<dt_node>("__overlay__");
     overlay->add_property("#address-cells", 2);
     overlay->add_property("#size-cells", 2);
-    overlay->add_node(std::move(rio));
+    overlay->add_node(gen_rio_node(bitfile));
 
     auto fragment = std::make_unique<dt_node>("fragment", 100);
     fragment->add_property_phandle("target", "amba");
     fragment->add_node(std::move(overlay));
 
-    return fragment;
+    auto dtso = bitfile.getOverlay();
+    dtso.insert(dtso.rfind("};"), fragment->render(0));
+
+    return dtso;
+}
+
+std::string generateOverlay(const nirio::Bitfile& bitfile)
+{
+    using dtgen::dt_node;
+
+    auto overlay = std::make_unique<dt_node>("&fpga_full");
+    overlay->add_node(gen_rio_node(bitfile));
+
+    auto dtso = bitfile.getOverlay();
+    dtso.insert(dtso.size(), overlay->render(0));
+
+    return dtso;
 }
 
 std::string generateDeviceTree(const nirio::Bitfile& bitfile)
 {
     auto overlay = bitfile.getOverlay();
-    overlay.insert(overlay.rfind("};"), gen_rio_node(bitfile)->render(0));
-    return overlay;
+
+    if (overlay.find("__overlay__") != -1)
+        return generateOldOverlay(bitfile);
+    else
+        return generateOverlay(bitfile);
 }
 
 } // namespace nirio
