@@ -120,7 +120,7 @@ void download(const nirio::Bitfile& bitfile)
         fpgaFile.write(bitstream.data(), bitstream.size());
     }
 
-    if (!exists(dtsPath)) {
+    {
         auto dts = nirio::generateDeviceTree(bitfile);
         std::ofstream dtsFile(dtsPath);
         dtsFile.write(dts.c_str(), dts.size());
