@@ -7,7 +7,7 @@ static uint64_t base_address(const nirio::Bitfile& bitfile)
 {
     (void)bitfile;
     // TODO: Make dependent upon target class
-    return 0x1200000000ULL;
+    return 0x1300000000ULL;
 }
 
 static uint32_t upper(uint64_t v)
