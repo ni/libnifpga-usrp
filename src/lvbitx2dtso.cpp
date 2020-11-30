@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
     auto&& bitstream = bitfile.getBitstream();
 
-    const auto bitstreamName = bitfile.getSignature() + ".bit";
+    const auto bitstreamName = bitfile.getSignature() + ".bin";
     std::ofstream bitstream_file(bitstreamName);
     bitstream_file.write(bitstream.data(), bitstream.size());
 
